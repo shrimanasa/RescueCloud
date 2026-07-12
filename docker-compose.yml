@@ -1,0 +1,75 @@
+services:
+  db:
+    image: postgres:16
+    container_name: rescuecloud-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - rescuecloud-postgres-data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - rescuecloud-network
+
+  minio:
+    image: minio/minio
+    container_name: rescuecloud-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - rescuecloud-minio-data:/data
+    networks:
+      - rescuecloud-network
+
+  backend:
+    build: ./backend
+    container_name: rescuecloud-backend-container
+    environment:
+      DB_HOST: rescuecloud-db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "8001:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - rescuecloud-network
+
+  frontend:
+    build: ./frontend
+    container_name: rescuecloud-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - rescuecloud-network
+
+volumes:
+  rescuecloud-postgres-data:
+    name: rescuecloud-postgres-data
+
+  rescuecloud-minio-data:
+    external: true
+    name: rescuecloud-minio-data
+
+networks:
+  rescuecloud-network:
+    external: true
+    name: rescuecloud-network

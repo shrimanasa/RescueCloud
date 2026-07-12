@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RescueCloud — Recovery Operations Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0f1c;
+    --panel:#111a2c;
+    --panel-raised:#151f35;
+    --border:#1f2c47;
+    --text:#e6ecf5;
+    --text-dim:#8593ac;
+    --text-faint:#4c5975;
+    --cyan:#4fd1c5;
+    --green:#34d399;
+    --amber:#fbbf24;
+    --red:#f87171;
+    --font-display:'IBM Plex Sans',system-ui,sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{color-scheme:dark;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(79,209,197,0.07), transparent),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(52,211,153,0.05), transparent),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font-display);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{background:rgba(79,209,197,0.3);}
+  :focus-visible{outline:2px solid var(--cyan);outline-offset:2px;border-radius:4px;}
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:20px 32px;
+    border-bottom:1px solid var(--border);
+    background:rgba(10,15,28,0.78);
+    backdrop-filter:blur(8px);
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{
+    width:42px;height:42px;border-radius:10px;
+    background:linear-gradient(135deg,var(--cyan),var(--green));
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-mono);font-weight:700;font-size:16px;color:#04141d;
+  }
+  .brand-text h1{margin:0;font-size:20px;font-weight:600;letter-spacing:0.01em;}
+  .brand-text p{margin:2px 0 0;font-size:13px;color:var(--text-dim);}
+  .header-right{display:flex;align-items:center;gap:24px;}
+  .clock{font-family:var(--font-mono);font-size:13px;color:var(--text-dim);}
+  .conn{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:12px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--text-faint);}
+  .dot.ok{background:var(--green);box-shadow:0 0 8px rgba(52,211,153,.7);}
+  .dot.bad{background:var(--red);box-shadow:0 0 8px rgba(248,113,113,.7);}
+  .dot.pending{background:var(--amber);animation:blink 1s infinite;}
+  @keyframes blink{50%{opacity:.3;}}
+
+  main{padding:36px 40px 70px;max-width:1280px;margin:0 auto;}
+
+  .badge{
+    font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;
+    padding:3px 9px;border-radius:20px;text-transform:uppercase;
+  }
+  .badge.preview{
+    background:rgba(251,191,36,.12);
+    color:var(--amber);
+    border:1px solid rgba(251,191,36,.35);
+  }
+  .badge.live{
+    background:rgba(52,211,153,.12);
+    color:var(--green);
+    border:1px solid rgba(52,211,153,.35);
+  }
+  .badge.alert{
+    background:rgba(248,113,113,.12);
+    color:var(--red);
+    border:1px solid rgba(248,113,113,.35);
+  }
+
+  .vitals-panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:36px 36px 24px;
+    margin-bottom:34px;
+    overflow:hidden;
+  }
+  .vitals-header{display:flex;justify-content:space-between;align-items:center;gap:18px;}
+  .vitals-header h2{margin:0;font-size:18px;font-weight:600;}
+  .vitals-sub{font-size:13px;color:var(--text-dim);margin:10px 0 26px;}
+  .pipeline-svg{width:100%;display:block;}
+  .stage-label{font-family:var(--font-mono);font-size:10px;fill:var(--text-dim);}
+  .stage-node{fill:var(--panel-raised);stroke:var(--border);stroke-width:1.5;}
+  .stage-node.active{stroke:var(--green);}
+  .stage-glyph{font-family:var(--font-mono);font-size:13px;fill:var(--text-dim);}
+  .pipe-line{stroke:var(--border);stroke-width:2;}
+  .vitals-tip{font-size:12px;color:var(--text-faint);text-align:center;margin:8px 0 0;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:20px;
+    margin-bottom:34px;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:26px;
+    min-height:205px;
+  }
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;}
+  .card-label{font-size:13px;color:var(--text-dim);}
+  .card-value{
+    font-family:var(--font-mono);
+    font-size:38px;
+    font-weight:600;
+    letter-spacing:-.02em;
+  }
+  .card-value.green{color:var(--green);}
+  .card-value.cyan{color:var(--cyan);}
+  .card-value.amber{color:var(--amber);}
+  .card-value.red{color:var(--red);}
+  .card-foot{
+    font-size:12px;
+    color:var(--text-faint);
+    margin-top:14px;
+    font-family:var(--font-mono);
+    line-height:1.45;
+  }
+  .gauge-track{
+    height:7px;background:var(--panel-raised);border-radius:4px;overflow:hidden;margin-top:16px;
+  }
+  .gauge-fill{
+    height:100%;border-radius:4px;background:linear-gradient(90deg,var(--cyan),var(--green));
+    width:4%;transition:width .35s ease;
+  }
+  .health-card{grid-column:1;}
+
+  .table-panel,.security-panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    overflow:hidden;
+    margin-bottom:28px;
+  }
+  .table-toolbar,.security-toolbar{
+    display:flex;gap:16px;align-items:center;justify-content:space-between;
+    padding:18px 26px;border-bottom:1px solid var(--border);
+  }
+  .table-toolbar h2,.security-toolbar h2{margin:0;font-size:17px;font-weight:600;}
+  .toolbar-title{display:flex;align-items:center;gap:10px;}
+  .toolbar-sub{margin-top:5px;color:var(--text-faint);font-size:12px;}
+
+  .search{
+    background:var(--panel-raised);
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:10px 14px;
+    color:var(--text);
+    font-family:var(--font-mono);
+    font-size:12px;
+    width:280px;
+  }
+  .search::placeholder{color:var(--text-faint);}
+  .search:focus{border-color:var(--cyan);outline:none;}
+
+  .table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;min-width:860px;}
+  thead th{
+    text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--text-faint);font-weight:500;padding:16px 26px;border-bottom:1px solid var(--border);
+  }
+  tbody td{
+    padding:17px 26px;font-size:14px;border-bottom:1px solid var(--border);
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:rgba(79,209,197,.04);}
+  .mrn{font-family:var(--font-mono);color:var(--text-dim);font-size:12px;}
+  .pill{
+    font-family:var(--font-mono);font-size:11px;padding:4px 9px;border-radius:20px;
+    background:var(--panel-raised);color:var(--text-dim);display:inline-block;
+    max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .pill.diagnosis{color:var(--amber);background:rgba(251,191,36,.09);}
+  .empty-state,.error-state{padding:48px 20px;text-align:center;color:var(--text-dim);font-size:13px;}
+  .error-state{color:var(--red);}
+
+  .table-foot{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 26px;border-top:1px solid var(--border);
+  }
+  .table-foot span{font-size:11px;color:var(--text-faint);font-family:var(--font-mono);}
+  .pager{display:flex;gap:8px;}
+  .pager button{
+    background:var(--panel-raised);border:1px solid var(--border);color:var(--text);
+    border-radius:7px;padding:7px 13px;font-family:var(--font-mono);font-size:12px;cursor:pointer;
+  }
+  .pager button:disabled{opacity:.35;cursor:not-allowed;}
+  .pager button:not(:disabled):hover{border-color:var(--cyan);}
+
+  .security-content{
+    display:grid;
+    grid-template-columns:1.4fr .8fr;
+    gap:22px;
+    padding:24px 26px 28px;
+  }
+  .form-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:14px;
+  }
+  .field{display:flex;flex-direction:column;gap:7px;}
+  .field label{
+    font-size:10px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    font-family:var(--font-mono);
+  }
+  .field input,.field select{
+    width:100%;
+    background:var(--panel-raised);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:10px 11px;
+    color:var(--text);
+    outline:none;
+  }
+  .field input:focus,.field select:focus{border-color:var(--cyan);}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+  .btn{
+    background:var(--panel-raised);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:8px;
+    padding:10px 14px;
+    cursor:pointer;
+  }
+  .btn:hover{border-color:var(--cyan);}
+  .btn.primary{
+    background:linear-gradient(135deg,var(--cyan),var(--green));
+    color:#04141d;
+    border:none;
+    font-weight:700;
+  }
+
+  .result-box{
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    border:1px dashed var(--border);
+    border-radius:12px;
+    padding:24px;
+    background:rgba(10,15,28,.32);
+  }
+  .result-icon{font-size:38px;margin-bottom:10px;}
+  .result-title{font-size:22px;font-weight:700;}
+  .result-score{font-family:var(--font-mono);font-size:12px;color:var(--text-dim);margin-top:8px;}
+  .result-message{font-size:13px;color:var(--text-dim);margin-top:8px;line-height:1.5;}
+
+
+  /* ---------- RAG assistant ---------- */
+  .rag-panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    overflow:hidden;
+    margin-bottom:28px;
+  }
+
+  .rag-content{
+    display:grid;
+    grid-template-columns:1fr 2fr;
+    gap:22px;
+    padding:24px 26px 28px;
+  }
+
+  .rag-info{
+    color:var(--text-dim);
+    font-size:13px;
+    line-height:1.65;
+  }
+
+  .rag-info h3{
+    margin:0 0 10px;
+    color:var(--text);
+    font-size:16px;
+  }
+
+  .quick-questions{
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    margin-top:18px;
+  }
+
+  .quick-question{
+    text-align:left;
+    background:var(--panel-raised);
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    border-radius:8px;
+    padding:10px 12px;
+    cursor:pointer;
+  }
+
+  .quick-question:hover{
+    border-color:var(--cyan);
+    color:var(--text);
+  }
+
+  .chat-shell{
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+    background:rgba(10,15,28,.32);
+  }
+
+  .chat-window{
+    min-height:270px;
+    max-height:420px;
+    overflow-y:auto;
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  .chat-message{
+    max-width:88%;
+    padding:11px 13px;
+    border-radius:11px;
+    font-size:13px;
+    line-height:1.55;
+    white-space:pre-wrap;
+  }
+
+  .chat-message.user{
+    align-self:flex-end;
+    color:#04141d;
+    background:linear-gradient(135deg,var(--cyan),var(--green));
+  }
+
+  .chat-message.assistant{
+    align-self:flex-start;
+    color:var(--text);
+    background:var(--panel-raised);
+    border:1px solid var(--border);
+  }
+
+  .chat-sources{
+    margin-top:7px;
+    color:var(--text-faint);
+    font:10px var(--font-mono);
+  }
+
+  .rag-form{
+    display:flex;
+    gap:10px;
+    padding:14px;
+    border-top:1px solid var(--border);
+  }
+
+  .rag-input{
+    flex:1;
+    background:var(--panel-raised);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:11px 13px;
+    color:var(--text);
+    outline:none;
+  }
+
+  .rag-input:focus{border-color:var(--cyan);}
+
+  @media(max-width:900px){
+    .rag-content{grid-template-columns:1fr;}
+  }
+
+  footer{
+    text-align:center;padding:28px;font-size:11px;color:var(--text-faint);font-family:var(--font-mono);
+  }
+
+  @media(max-width:1000px){
+    .grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .health-card{grid-column:auto;}
+    .security-content{grid-template-columns:1fr;}
+  }
+  @media(max-width:720px){
+    header{padding:16px 18px;}
+    main{padding:22px 16px 50px;}
+    .clock{display:none;}
+    .grid{grid-template-columns:1fr;}
+    .vitals-header,.table-toolbar,.security-toolbar{align-items:flex-start;flex-direction:column;}
+    .search{width:100%;}
+    .form-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">RC</div>
+    <div class="brand-text">
+      <h1>RescueCloud</h1>
+      <p>Recovery Operations Console — Healthcare EHR</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="clock" id="clock">--:--:--</div>
+    <div class="conn">
+      <span class="dot pending" id="conn-dot"></span>
+      <span id="conn-label">Connecting…</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section class="vitals-panel">
+    <div class="vitals-header">
+      <h2>Pipeline Vitals</h2>
+      <span class="badge live">Live security pipeline</span>
+    </div>
+    <p class="vitals-sub">Backup Scheduler → Detection → Planner → Restore → Health Check → Recovery Report</p>
+
+    <svg class="pipeline-svg" viewBox="0 0 1120 92" xmlns="http://www.w3.org/2000/svg">
+      <line x1="80" y1="30" x2="1040" y2="30" class="pipe-line"/>
+      <circle r="4" fill="var(--green)">
+        <animateMotion dur="6s" repeatCount="indefinite" path="M80,30 L1040,30"/>
+        <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.05;0.95;1" dur="6s" repeatCount="indefinite"/>
+      </circle>
+      <g id="stage-nodes"></g>
+    </svg>
+
+    <p class="vitals-tip">Hover a stage to view its role</p>
+  </section>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-top">
+        <span class="card-label">Backup Integrity</span>
+        <span class="badge live">Live</span>
+      </div>
+      <div class="card-value cyan">SHA-256</div>
+      <div class="card-foot">write-time hash · verified before restore</div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="card-label">Detection Confidence</span>
+        <span class="badge live" id="model-badge">Checking</span>
+      </div>
+      <div class="card-value green" id="anomaly-score">Ready</div>
+      <div class="gauge-track">
+        <div class="gauge-fill" id="anomaly-gauge" style="width:4%"></div>
+      </div>
+      <div class="card-foot" id="detection-foot">Isolation Forest model status</div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="card-label">Target RPO / RTO</span>
+        <span class="badge preview">Target</span>
+      </div>
+      <div class="card-value">15m / 15m</div>
+      <div class="card-foot">data-loss window · time to full recovery</div>
+    </div>
+
+    <div class="card health-card">
+      <div class="card-top">
+        <span class="card-label">EHR Health Check</span>
+        <span class="badge live" id="health-badge">Live</span>
+      </div>
+      <div class="card-value" id="health-value">Checking</div>
+      <div class="card-foot" id="health-foot">checking backend and PostgreSQL…</div>
+    </div>
+  </div>
+
+  <section class="table-panel">
+    <div class="table-toolbar">
+      <div>
+        <div class="toolbar-title">
+          <h2>Patient Records</h2>
+          <span class="badge live">Live</span>
+        </div>
+        <div class="toolbar-sub">Synthea patient records and latest diagnosis</div>
+      </div>
+      <input class="search" id="search" type="text" placeholder="Filter by ID, name, or diagnosis">
+    </div>
+
+    <div class="table-wrap" id="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Gender</th>
+            <th>Diagnosis</th>
+          </tr>
+        </thead>
+        <tbody id="patient-body">
+          <tr><td colspan="5" class="empty-state">Loading patient records…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-foot">
+      <span id="table-count">—</span>
+      <div class="pager">
+        <button id="prev-page">← Prev</button>
+        <button id="next-page">Next →</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="security-panel">
+    <div class="security-toolbar">
+      <div>
+        <div class="toolbar-title">
+          <h2>Security Activity Check</h2>
+          <span class="badge live">Isolation Forest</span>
+        </div>
+        <div class="toolbar-sub">Test normal and suspicious activity from the browser</div>
+      </div>
+    </div>
+
+    <div class="security-content">
+      <form id="anomaly-form">
+        <div class="form-grid">
+          <div class="field">
+            <label for="role">Role</label>
+            <select id="role">
+              <option value="doctor">Doctor</option>
+              <option value="nurse">Nurse</option>
+              <option value="admin">Admin</option>
+              <option value="lab_technician">Lab technician</option>
+              <option value="receptionist">Receptionist</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="action">Action</label>
+            <select id="action">
+              <option value="view_record">View record</option>
+              <option value="login">Login</option>
+              <option value="update_record">Update record</option>
+              <option value="export_data">Export data</option>
+              <option value="delete_record">Delete record</option>
+              <option value="privilege_change">Privilege change</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="status">Status</label>
+            <select id="status">
+              <option value="success">Success</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="failed_logins">Failed logins</label>
+            <input id="failed_logins" type="number" min="0" value="0">
+          </div>
+
+          <div class="field">
+            <label for="requests_per_minute">Requests / minute</label>
+            <input id="requests_per_minute" type="number" min="0" value="6">
+          </div>
+
+          <div class="field">
+            <label for="records_accessed">Records accessed</label>
+            <input id="records_accessed" type="number" min="0" value="4">
+          </div>
+
+          <div class="field">
+            <label for="records_modified">Records modified</label>
+            <input id="records_modified" type="number" min="0" value="0">
+          </div>
+
+          <div class="field">
+            <label for="records_deleted">Records deleted</label>
+            <input id="records_deleted" type="number" min="0" value="0">
+          </div>
+
+          <div class="field">
+            <label for="export_size_mb">Export size MB</label>
+            <input id="export_size_mb" type="number" min="0" step="0.1" value="0">
+          </div>
+
+          <div class="field">
+            <label for="session_duration_min">Session minutes</label>
+            <input id="session_duration_min" type="number" min="0" value="25">
+          </div>
+
+          <div class="field">
+            <label for="off_hours_access">Off-hours</label>
+            <select id="off_hours_access">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="new_ip_address">New IP</label>
+            <select id="new_ip_address">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="privilege_change">Privilege change</label>
+            <select id="privilege_change">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" type="submit">Run security check</button>
+          <button class="btn" type="button" id="normal-example">Normal example</button>
+          <button class="btn" type="button" id="suspicious-example">Suspicious example</button>
+        </div>
+      </form>
+
+      <div class="result-box" id="result-box">
+        <div class="result-icon">◎</div>
+        <div class="result-title">Waiting for activity</div>
+        <div class="result-score">No prediction yet</div>
+        <div class="result-message">Choose an example or enter activity values.</div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="rag-panel">
+    <div class="security-toolbar">
+      <div>
+        <div class="toolbar-title">
+          <h2>RescueCloud Assistant</h2>
+          <span class="badge preview" id="rag-badge">Checking</span>
+        </div>
+        <div class="toolbar-sub">
+          Grounded answers from RescueCloud recovery and security documents
+        </div>
+      </div>
+    </div>
+
+    <div class="rag-content">
+      <div class="rag-info">
+        <h3>Ask about the project</h3>
+        The assistant retrieves relevant information from ChromaDB and uses
+        the local Qwen model to generate an answer.
+
+        <div class="quick-questions">
+          <button class="quick-question" type="button">
+            How does RescueCloud verify a backup?
+          </button>
+
+          <button class="quick-question" type="button">
+            What makes an activity suspicious?
+          </button>
+
+          <button class="quick-question" type="button">
+            How do I recover the latest backup?
+          </button>
+
+          <button class="quick-question" type="button">
+            How many records are restored?
+          </button>
+        </div>
+      </div>
+
+      <div class="chat-shell">
+        <div class="chat-window" id="chat-window">
+          <div class="chat-message assistant">
+            Ask me about RescueCloud backups, recovery, anomaly detection,
+            services, or system operations.
+          </div>
+        </div>
+
+        <form class="rag-form" id="rag-form">
+          <input
+            class="rag-input"
+            id="rag-question"
+            type="text"
+            minlength="3"
+            maxlength="500"
+            placeholder="Ask a RescueCloud question..."
+            required
+          >
+          <button class="btn primary" id="rag-send" type="submit">
+            Ask
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>RescueCloud · synthetic healthcare data only · academic prototype</footer>
+
+<script>
+  const API_URL = "/api";
+  const PAGE_SIZE = 8;
+
+  let allPatients = [];
+  let filteredPatients = [];
+  let currentPage = 1;
+
+  const byId = id => document.getElementById(id);
+  const numberValue = id => Number(byId(id).value);
+
+  function tickClock(){
+    const now = new Date();
+    byId("clock").textContent =
+      now.toLocaleTimeString("en-GB", {hour12:false}) + " IST";
+  }
+
+  const STAGES = [
+    {label:"Backup", glyph:"◆", desc:"Creates a timestamped PostgreSQL backup"},
+    {label:"Detect", glyph:"◈", desc:"Isolation Forest checks suspicious activity"},
+    {label:"Plan", glyph:"◇", desc:"Selects the latest verified clean backup"},
+    {label:"Restore", glyph:"◆", desc:"Restores into a fresh PostgreSQL container"},
+    {label:"Health", glyph:"◈", desc:"Checks the recovered API and database"},
+    {label:"Report", glyph:"◇", desc:"Shows recovery and incident results"}
+  ];
+
+  function drawStages(){
+    const group = byId("stage-nodes");
+    const startX = 80;
+    const endX = 1040;
+    const y = 30;
+    const step = (endX - startX) / (STAGES.length - 1);
+
+    STAGES.forEach((stage,index)=>{
+      const x = startX + step * index;
+      const node = document.createElementNS("http://www.w3.org/2000/svg","g");
+      node.innerHTML = `
+        <circle cx="${x}" cy="${y}" r="16" class="stage-node ${index < 2 ? "active" : ""}"></circle>
+        <text x="${x}" y="${y+5}" text-anchor="middle" class="stage-glyph">${stage.glyph}</text>
+        <text x="${x}" y="${y+40}" text-anchor="middle" class="stage-label">${stage.label}</text>
+      `;
+      node.style.cursor = "default";
+      node.addEventListener("mouseenter",()=>byId("stage-nodes").closest("section").querySelector(".vitals-tip").textContent=stage.desc);
+      node.addEventListener("mouseleave",()=>byId("stage-nodes").closest("section").querySelector(".vitals-tip").textContent="Hover a stage to view its role");
+      group.appendChild(node);
+    });
+  }
+
+  async function loadHealth(){
+    const dot = byId("conn-dot");
+    const label = byId("conn-label");
+
+    try{
+      const start = performance.now();
+      const response = await fetch(`${API_URL}/health`);
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      const latency = Math.round(performance.now() - start);
+
+      dot.className = "dot ok";
+      label.textContent = "Backend connected";
+      byId("health-value").textContent = "Healthy";
+      byId("health-value").className = "card-value green";
+      byId("health-foot").textContent = `database ${data.database} · ${latency}ms`;
+      byId("health-badge").className = "badge live";
+      byId("health-badge").textContent = "Live";
+    }catch(error){
+      dot.className = "dot bad";
+      label.textContent = "Backend unreachable";
+      byId("health-value").textContent = "Down";
+      byId("health-value").className = "card-value red";
+      byId("health-foot").textContent = "check Docker backend";
+      byId("health-badge").className = "badge alert";
+      byId("health-badge").textContent = "Offline";
+    }
+  }
+
+  async function loadModelStatus(){
+    try{
+      const response = await fetch(`${API_URL}/anomaly/model-status`);
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+
+      byId("model-badge").className = "badge live";
+      byId("model-badge").textContent = "Live";
+      byId("anomaly-score").textContent = data.loaded ? "Ready" : "Error";
+      byId("anomaly-score").className = `card-value ${data.loaded ? "green" : "red"}`;
+      byId("detection-foot").textContent =
+        data.loaded ? "Isolation Forest model loaded" : "model unavailable";
+    }catch(error){
+      byId("model-badge").className = "badge alert";
+      byId("model-badge").textContent = "Offline";
+      byId("anomaly-score").textContent = "Down";
+      byId("anomaly-score").className = "card-value red";
+      byId("detection-foot").textContent = "could not reach model endpoint";
+    }
+  }
+
+  async function loadPatients(){
+    try{
+      const response = await fetch(`${API_URL}/patients`);
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      allPatients = await response.json();
+      filteredPatients = [...allPatients];
+      renderPatients();
+    }catch(error){
+      byId("patient-body").innerHTML =
+        `<tr><td colspan="5" class="error-state">Unable to load patient records.</td></tr>`;
+      byId("table-count").textContent = "load failed";
+    }
+  }
+
+  function renderPatients(){
+    const totalPages = Math.max(1,Math.ceil(filteredPatients.length/PAGE_SIZE));
+    currentPage = Math.min(currentPage,totalPages);
+
+    const start = (currentPage-1)*PAGE_SIZE;
+    const pageRows = filteredPatients.slice(start,start+PAGE_SIZE);
+
+    if(pageRows.length === 0){
+      byId("patient-body").innerHTML =
+        `<tr><td colspan="5" class="empty-state">No matching records.</td></tr>`;
+    }else{
+      byId("patient-body").innerHTML = pageRows.map(patient=>`
+        <tr>
+          <td class="mrn" title="${patient.patient_id}">
+            ${patient.patient_id.slice(0,8)}-<br>${patient.patient_id.slice(9,22)}
+          </td>
+          <td>${patient.name}</td>
+          <td>${patient.age ?? "—"}</td>
+          <td><span class="pill">${patient.gender ?? "—"}</span></td>
+          <td><span class="pill diagnosis" title="${patient.diagnosis}">
+            ${patient.diagnosis}
+          </span></td>
+        </tr>
+      `).join("");
+    }
+
+    const first = filteredPatients.length ? start+1 : 0;
+    const last = Math.min(start+PAGE_SIZE,filteredPatients.length);
+
+    byId("table-count").textContent =
+      `${first}–${last} of ${filteredPatients.length} records`;
+    byId("prev-page").disabled = currentPage <= 1;
+    byId("next-page").disabled = currentPage >= totalPages;
+  }
+
+  function getActivityPayload(){
+    return {
+      role:byId("role").value,
+      action:byId("action").value,
+      status:byId("status").value,
+      failed_logins:numberValue("failed_logins"),
+      requests_per_minute:numberValue("requests_per_minute"),
+      records_accessed:numberValue("records_accessed"),
+      records_modified:numberValue("records_modified"),
+      records_deleted:numberValue("records_deleted"),
+      export_size_mb:numberValue("export_size_mb"),
+      session_duration_min:numberValue("session_duration_min"),
+      off_hours_access:numberValue("off_hours_access"),
+      new_ip_address:numberValue("new_ip_address"),
+      privilege_change:numberValue("privilege_change")
+    };
+  }
+
+  async function runPrediction(event){
+    event.preventDefault();
+
+    byId("result-box").innerHTML = `
+      <div class="result-icon">◌</div>
+      <div class="result-title amber">Analysing</div>
+      <div class="result-score">Isolation Forest prediction in progress</div>
+    `;
+
+    try{
+      const response = await fetch(`${API_URL}/anomaly/predict`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(getActivityPayload())
+      });
+
+      const result = await response.json();
+      if(!response.ok) throw new Error(result.detail || "Prediction failed");
+
+      const suspicious = result.is_anomaly;
+      const score = Number(result.decision_score);
+      const gaugeValue = Math.min(100,Math.max(4,Math.abs(score)*300));
+
+      byId("anomaly-score").textContent = Math.abs(score).toFixed(2);
+      byId("anomaly-score").className =
+        `card-value ${suspicious ? "red" : "green"}`;
+      byId("anomaly-gauge").style.width = `${gaugeValue}%`;
+      byId("anomaly-gauge").style.background =
+        suspicious ? "linear-gradient(90deg,var(--amber),var(--red))" :
+                     "linear-gradient(90deg,var(--cyan),var(--green))";
+      byId("detection-foot").textContent =
+        suspicious ? "suspicious activity detected" : "activity appears normal";
+
+      byId("result-box").innerHTML = `
+        <div class="result-icon">${suspicious ? "⚠" : "✓"}</div>
+        <div class="result-title ${suspicious ? "red" : "green"}">
+          ${suspicious ? "Suspicious activity" : "Normal activity"}
+        </div>
+        <div class="result-score">Decision score: ${result.decision_score}</div>
+        <div class="result-message">${result.message}</div>
+      `;
+    }catch(error){
+      byId("result-box").innerHTML = `
+        <div class="result-icon">×</div>
+        <div class="result-title red">Prediction failed</div>
+        <div class="result-score">${error.message}</div>
+        <div class="result-message">Check that the backend and model are running.</div>
+      `;
+    }
+  }
+
+  function loadNormal(){
+    byId("role").value="doctor";
+    byId("action").value="view_record";
+    byId("status").value="success";
+    byId("failed_logins").value=0;
+    byId("requests_per_minute").value=6;
+    byId("records_accessed").value=4;
+    byId("records_modified").value=0;
+    byId("records_deleted").value=0;
+    byId("export_size_mb").value=0;
+    byId("session_duration_min").value=25;
+    byId("off_hours_access").value=0;
+    byId("new_ip_address").value=0;
+    byId("privilege_change").value=0;
+  }
+
+  function loadSuspicious(){
+    byId("role").value="admin";
+    byId("action").value="export_data";
+    byId("status").value="success";
+    byId("failed_logins").value=12;
+    byId("requests_per_minute").value=180;
+    byId("records_accessed").value=2500;
+    byId("records_modified").value=0;
+    byId("records_deleted").value=0;
+    byId("export_size_mb").value=950;
+    byId("session_duration_min").value=15;
+    byId("off_hours_access").value=1;
+    byId("new_ip_address").value=1;
+    byId("privilege_change").value=0;
+  }
+
+  byId("search").addEventListener("input",event=>{
+    const query = event.target.value.trim().toLowerCase();
+    filteredPatients = allPatients.filter(patient =>
+      patient.patient_id.toLowerCase().includes(query) ||
+      patient.name.toLowerCase().includes(query) ||
+      patient.diagnosis.toLowerCase().includes(query) ||
+      String(patient.gender || "").toLowerCase().includes(query)
+    );
+    currentPage = 1;
+    renderPatients();
+  });
+
+  byId("prev-page").addEventListener("click",()=>{
+    currentPage -= 1;
+    renderPatients();
+  });
+
+  byId("next-page").addEventListener("click",()=>{
+    currentPage += 1;
+    renderPatients();
+  });
+
+  byId("anomaly-form").addEventListener("submit",runPrediction);
+  byId("normal-example").addEventListener("click",loadNormal);
+  byId("suspicious-example").addEventListener("click",loadSuspicious);
+
+
+  async function loadRagStatus(){
+    try{
+      const response = await fetch(`${API_URL}/rag/status`);
+      if(!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const data = await response.json();
+      byId("rag-badge").className =
+        `badge ${data.vector_database_loaded ? "live" : "alert"}`;
+      byId("rag-badge").textContent =
+        data.vector_database_loaded ? `${data.document_chunks} chunks` : "Offline";
+    }catch(error){
+      byId("rag-badge").className = "badge alert";
+      byId("rag-badge").textContent = "Offline";
+    }
+  }
+
+  function addChatMessage(type, text, sources=[]){
+    const message = document.createElement("div");
+    message.className = `chat-message ${type}`;
+
+    const content = document.createElement("div");
+    content.textContent = text;
+    message.appendChild(content);
+
+    if(sources.length){
+      const sourceLine = document.createElement("div");
+      sourceLine.className = "chat-sources";
+      sourceLine.textContent = `Sources: ${sources.join(", ")}`;
+      message.appendChild(sourceLine);
+    }
+
+    byId("chat-window").appendChild(message);
+    byId("chat-window").scrollTop = byId("chat-window").scrollHeight;
+    return message;
+  }
+
+  async function askRag(event){
+    event.preventDefault();
+
+    const question = byId("rag-question").value.trim();
+    if(!question) return;
+
+    addChatMessage("user", question);
+    byId("rag-question").value = "";
+    byId("rag-send").disabled = true;
+
+    const waiting = addChatMessage(
+      "assistant",
+      "Searching RescueCloud documents and generating an answer..."
+    );
+
+    try{
+      const response = await fetch(`${API_URL}/rag/ask`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({question})
+      });
+
+      const result = await response.json();
+      if(!response.ok){
+        throw new Error(result.detail || "Assistant request failed");
+      }
+
+      waiting.remove();
+      addChatMessage("assistant", result.answer, result.sources || []);
+    }catch(error){
+      waiting.remove();
+      addChatMessage(
+        "assistant",
+        `Assistant unavailable: ${error.message}`
+      );
+    }finally{
+      byId("rag-send").disabled = false;
+      byId("rag-question").focus();
+    }
+  }
+
+  byId("rag-form").addEventListener("submit", askRag);
+
+  document.querySelectorAll(".quick-question").forEach(button=>{
+    button.addEventListener("click",()=>{
+      byId("rag-question").value = button.textContent.trim();
+      byId("rag-question").focus();
+    });
+  });
+
+  tickClock();
+  setInterval(tickClock,1000);
+  drawStages();
+  loadHealth();
+  loadModelStatus();
+  loadPatients();
+  loadRagStatus();
+</script>
+</body>
+</html>
