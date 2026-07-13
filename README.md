@@ -47,32 +47,32 @@ RescueCloud treats backup recovery as a constrained trust-selection problem.
 
 Let:
 
-- \(B_i\) be backup \(i\),
-- \(t_i\) be its creation time,
-- \(t_c\) be the estimated compromise time,
-- \(H(B_i)\) be the computed SHA-256 hash,
-- \(H_i^\*\) be the stored trusted hash,
-- \(V(B_i)\) be the post-restore validation result.
+- $B_i$ be backup $i$,
+- $t_i$ be its creation time,
+- $t_c$ be the estimated compromise time,
+- $H(B_i)$ be the computed SHA-256 hash,
+- $H_i^*$ be the stored trusted hash,
+- $V(B_i)$ be the post-restore validation result.
 
 A backup is eligible only when:
 
-\[
+$$
 t_i < t_c
-\]
+$$
 
-\[
-H(B_i) = H_i^\*
-\]
+$$
+H(B_i) = H_i^*
+$$
 
-\[
+$$
 V(B_i) = \text{valid}
-\]
+$$
 
 The selected restore point is:
 
-\[
-B^\* = \arg\max_{B_i} t_i
-\]
+$$
+B^* = \arg\max_{B_i} t_i
+$$
 
 subject to all eligibility constraints.
 
@@ -335,16 +335,16 @@ The implementation can derive features such as:
 
 ### Model output
 
-For each observation \(x\), Isolation Forest produces an anomaly score:
+For each observation $x$, Isolation Forest produces an anomaly score:
 
-\[
+$$
 s(x) = 2^{-\frac{E(h(x))}{c(n)}}
-\]
+$$
 
 where:
 
-- \(E(h(x))\) is the expected path length,
-- \(c(n)\) normalizes the path length for sample size \(n\),
+- $E(h(x))$ is the expected path length,
+- $c(n)$ normalizes the path length for sample size $n$,
 - and a larger score indicates stronger anomalous behaviour.
 
 The anomaly score is evidence, not proof of compromise.
@@ -474,11 +474,11 @@ The `rag/` module can retrieve context from:
 
 Example questions:
 
-- “Why was the latest backup rejected?”
-- “Which anomaly triggered the compromise window?”
-- “What validation checks failed?”
-- “Which clean backup was selected?”
-- “What should the operator verify next?”
+- "Why was the latest backup rejected?"
+- "Which anomaly triggered the compromise window?"
+- "What validation checks failed?"
+- "Which clean backup was selected?"
+- "What should the operator verify next?"
 
 The assistant is intentionally separated from the recovery policy engine to reduce the risk of hallucinated recovery decisions.
 
@@ -499,7 +499,7 @@ The RescueCloud dashboard can present:
 - restore progress,
 - and validation outcome.
 
-A strong UI should make the decision trail auditable rather than displaying only a final “restore completed” message.
+A strong UI should make the decision trail auditable rather than displaying only a final "restore completed" message.
 
 ---
 
