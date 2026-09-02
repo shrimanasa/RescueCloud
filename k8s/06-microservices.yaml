@@ -1,0 +1,254 @@
+# ─────────────────────────────────────────────────────────────
+# EHR Core Service  (Port 8010)
+# ─────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ehr-service
+  namespace: rescuecloud
+  labels:
+    app: ehr-service
+    agent: none
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ehr-service
+  template:
+    metadata:
+      labels:
+        app: ehr-service
+    spec:
+      containers:
+      - name: ehr-service
+        image: rescuecloud-services:latest
+        imagePullPolicy: Never       # use locally-loaded image
+        command: [uvicorn, services.ehr_service.main:app, --host, 0.0.0.0, --port, "8000"]
+        envFrom:
+        - configMapRef:
+            name: rescuecloud-config
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rescuecloud-secrets
+              key: POSTGRES_PASSWORD
+        ports:
+        - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ehr-service
+  namespace: rescuecloud
+spec:
+  selector:
+    app: ehr-service
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+# ─────────────────────────────────────────────────────────────
+# Threat Sentinel Agent  (Port 8020)
+# ─────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentinel-service
+  namespace: rescuecloud
+  labels:
+    app: sentinel-service
+    agent: threat-sentinel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sentinel-service
+  template:
+    metadata:
+      labels:
+        app: sentinel-service
+        agent: threat-sentinel
+    spec:
+      containers:
+      - name: sentinel-service
+        image: rescuecloud-services:latest
+        imagePullPolicy: Never
+        command: [uvicorn, services.sentinel_service.main:app, --host, 0.0.0.0, --port, "8000"]
+        envFrom:
+        - configMapRef:
+            name: rescuecloud-config
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rescuecloud-secrets
+              key: POSTGRES_PASSWORD
+        ports:
+        - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentinel-service
+  namespace: rescuecloud
+spec:
+  selector:
+    app: sentinel-service
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+# ─────────────────────────────────────────────────────────────
+# Blockchain Auditor Agent  (Port 8030)
+# ─────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auditor-service
+  namespace: rescuecloud
+  labels:
+    app: auditor-service
+    agent: blockchain-auditor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auditor-service
+  template:
+    metadata:
+      labels:
+        app: auditor-service
+        agent: blockchain-auditor
+    spec:
+      containers:
+      - name: auditor-service
+        image: rescuecloud-services:latest
+        imagePullPolicy: Never
+        command: [uvicorn, services.auditor_service.main:app, --host, 0.0.0.0, --port, "8000"]
+        envFrom:
+        - configMapRef:
+            name: rescuecloud-config
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rescuecloud-secrets
+              key: POSTGRES_PASSWORD
+        ports:
+        - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auditor-service
+  namespace: rescuecloud
+spec:
+  selector:
+    app: auditor-service
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+# ─────────────────────────────────────────────────────────────
+# PITR Healer Agent  (Port 8040)
+# ─────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healer-service
+  namespace: rescuecloud
+  labels:
+    app: healer-service
+    agent: pitr-healer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: healer-service
+  template:
+    metadata:
+      labels:
+        app: healer-service
+        agent: pitr-healer
+    spec:
+      containers:
+      - name: healer-service
+        image: rescuecloud-services:latest
+        imagePullPolicy: Never
+        command: [uvicorn, services.healer_service.main:app, --host, 0.0.0.0, --port, "8000"]
+        envFrom:
+        - configMapRef:
+            name: rescuecloud-config
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rescuecloud-secrets
+              key: POSTGRES_PASSWORD
+        ports:
+        - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: healer-service
+  namespace: rescuecloud
+spec:
+  selector:
+    app: healer-service
+  ports:
+  - port: 8000
+    targetPort: 8000

@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────────────────────
+# API Gateway & Incident Commander Agent  (Port 8001 external)
+# ─────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  namespace: rescuecloud
+  labels:
+    app: gateway
+    agent: commander
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+        agent: commander
+    spec:
+      containers:
+      - name: gateway
+        image: rescuecloud-services:latest
+        imagePullPolicy: Never
+        command: [uvicorn, services.gateway_service.main:app, --host, 0.0.0.0, --port, "8000"]
+        envFrom:
+        - configMapRef:
+            name: rescuecloud-config
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rescuecloud-secrets
+              key: POSTGRES_PASSWORD
+        ports:
+        - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+  namespace: rescuecloud
+spec:
+  selector:
+    app: gateway
+  type: NodePort
+  ports:
+  - port: 8000
+    targetPort: 8000
+    nodePort: 30001
+    name: api

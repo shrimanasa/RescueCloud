@@ -1,0 +1,165 @@
+# PostgreSQL StatefulSet with WAL archiving enabled
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: rescuecloud
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wal-archive-pvc
+  namespace: rescuecloud
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-sql
+  namespace: rescuecloud
+data:
+  init.sql: |
+    CREATE TABLE IF NOT EXISTS synthea_patients (
+        id UUID PRIMARY KEY,
+        birthdate DATE, deathdate DATE, ssn TEXT, drivers TEXT,
+        passport TEXT, prefix TEXT, first_name TEXT, middle_name TEXT,
+        last_name TEXT, suffix TEXT, maiden TEXT, marital TEXT,
+        race TEXT, ethnicity TEXT, gender TEXT, birthplace TEXT,
+        address TEXT, city TEXT, state TEXT, county TEXT, fips TEXT,
+        zip TEXT, latitude DOUBLE PRECISION, longitude DOUBLE PRECISION,
+        healthcare_expenses NUMERIC(14,2), healthcare_coverage NUMERIC(14,2),
+        income NUMERIC(14,2)
+    );
+    CREATE TABLE IF NOT EXISTS synthea_conditions (
+        condition_id BIGSERIAL PRIMARY KEY,
+        start_date DATE, stop_date DATE,
+        patient_id UUID REFERENCES synthea_patients(id) ON DELETE CASCADE,
+        encounter_id UUID, system TEXT, code TEXT, description TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_conditions_patient_id ON synthea_conditions(patient_id);
+    CREATE INDEX IF NOT EXISTS idx_conditions_start_date ON synthea_conditions(start_date);
+    CREATE TABLE IF NOT EXISTS backup_ledger (
+        id            BIGSERIAL PRIMARY KEY,
+        filename      TEXT        NOT NULL,
+        backup_type   TEXT        NOT NULL DEFAULT 'snapshot',
+        sha256        CHAR(64)    NOT NULL,
+        size_bytes    BIGINT,
+        created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        verified      BOOLEAN     NOT NULL DEFAULT TRUE,
+        storage_path  TEXT,
+        wal_start     TEXT,
+        wal_stop      TEXT,
+        notes         TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_backup_ledger_created_at ON backup_ledger(created_at DESC);
+    CREATE TABLE IF NOT EXISTS security_incidents (
+        incident_id   BIGSERIAL PRIMARY KEY,
+        detected_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        threat_type   TEXT,
+        attacker_ip   TEXT,
+        anomaly_score NUMERIC(6,4),
+        status        TEXT DEFAULT 'open',
+        notes         TEXT
+    );
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: rescuecloud
+  labels:
+    app: postgres
+spec:
+  serviceName: postgres-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:16
+        args:
+          - postgres
+          - -c
+          - wal_level=replica
+          - -c
+          - archive_mode=on
+          - -c
+          - archive_command=test ! -f /wal_archive/%f && cp %p /wal_archive/%f
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: rescuecloud-secrets
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rescuecloud-secrets
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: rescuecloud-secrets
+              key: POSTGRES_DB
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        - name: wal-archive
+          mountPath: /wal_archive
+        - name: init-sql
+          mountPath: /docker-entrypoint-initdb.d/init.sql
+          subPath: init.sql
+        readinessProbe:
+          exec:
+            command: [pg_isready, -U, rescueadmin, -d, rescuecloud_ehr]
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+      volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+      - name: wal-archive
+        persistentVolumeClaim:
+          claimName: wal-archive-pvc
+      - name: init-sql
+        configMap:
+          name: postgres-init-sql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: rescuecloud
+spec:
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+  clusterIP: None  # Headless for StatefulSet
