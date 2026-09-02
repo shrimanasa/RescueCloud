@@ -1,0 +1,231 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    container_name: rescuecloud-db
+    env_file: .env
+    command: postgres -c wal_level=replica -c archive_mode=on -c "archive_command=test ! -f /wal_archive/%f && cp %p /wal_archive/%f"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - rescuecloud-postgres-data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./wal_archive:/wal_archive
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - rescuecloud-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: rescuecloud-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - rescuecloud-network
+
+  minio:
+    image: minio/minio
+    container_name: rescuecloud-minio
+    env_file: .env
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - rescuecloud-minio-data:/data
+    networks:
+      - rescuecloud-network
+
+  ehr-service:
+    build:
+      context: .
+      dockerfile: services/Dockerfile
+    container_name: rescuecloud-ehr-service
+    command: ["uvicorn", "services.ehr_service.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    env_file: .env
+    environment:
+      DB_HOST: rescuecloud-db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: rescuecloud-redis
+      REDIS_PORT: 6379
+    ports:
+      - "8010:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - rescuecloud-network
+
+  sentinel-service:
+    build:
+      context: .
+      dockerfile: services/Dockerfile
+    container_name: rescuecloud-sentinel-service
+    command: ["uvicorn", "services.sentinel_service.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    env_file: .env
+    environment:
+      DB_HOST: rescuecloud-db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: rescuecloud-redis
+      REDIS_PORT: 6379
+    ports:
+      - "8020:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - rescuecloud-network
+
+  auditor-service:
+    build:
+      context: .
+      dockerfile: services/Dockerfile
+    container_name: rescuecloud-auditor-service
+    command: ["uvicorn", "services.auditor_service.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    env_file: .env
+    environment:
+      DB_HOST: rescuecloud-db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: rescuecloud-redis
+      REDIS_PORT: 6379
+    ports:
+      - "8030:8000"
+    volumes:
+      - ./backups:/backups:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - rescuecloud-network
+
+  healer-service:
+    build:
+      context: .
+      dockerfile: services/Dockerfile
+    container_name: rescuecloud-healer-service
+    command: ["uvicorn", "services.healer_service.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    env_file: .env
+    environment:
+      DB_HOST: rescuecloud-db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: rescuecloud-redis
+      REDIS_PORT: 6379
+    ports:
+      - "8040:8000"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./backups:/backups
+      - ./wal_archive:/wal_archive:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - rescuecloud-network
+
+  gateway:
+    build:
+      context: .
+      dockerfile: services/Dockerfile
+    container_name: rescuecloud-gateway
+    command: ["uvicorn", "services.gateway_service.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    env_file: .env
+    environment:
+      EHR_SERVICE_URL: http://rescuecloud-ehr-service:8000
+      SENTINEL_SERVICE_URL: http://rescuecloud-sentinel-service:8000
+      AUDITOR_SERVICE_URL: http://rescuecloud-auditor-service:8000
+      HEALER_SERVICE_URL: http://rescuecloud-healer-service:8000
+      REDIS_HOST: rescuecloud-redis
+      REDIS_PORT: 6379
+    ports:
+      - "8001:8000"
+    depends_on:
+      - ehr-service
+      - sentinel-service
+      - auditor-service
+      - healer-service
+    networks:
+      - rescuecloud-network
+
+  frontend:
+    build: ./frontend
+    container_name: rescuecloud-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - gateway
+    networks:
+      - rescuecloud-network
+
+  backup-scheduler:
+    image: alpine:3.19
+    container_name: rescuecloud-backup-scheduler
+    restart: unless-stopped
+    environment:
+      BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-300}
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./backups:/backups
+      - ./wal_archive:/wal_archive
+      - ./.env:/.env:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint: >
+      /bin/sh -c "
+        apk add --no-cache bash docker-cli python3 > /dev/null 2>&1;
+        echo 'Backup scheduler started. Interval: '$$BACKUP_INTERVAL_SECONDS's';
+        while true; do
+          echo \"[$(date -u +'%Y-%m-%dT%H:%M:%SZ')] Running scheduled backup...\";
+          bash /scripts/backup.sh && echo '[OK] Backup complete.' || echo '[ERR] Backup failed.';
+          sleep $$BACKUP_INTERVAL_SECONDS;
+        done
+      "
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - rescuecloud-network
+
+volumes:
+  rescuecloud-postgres-data:
+    name: rescuecloud-postgres-data
+  rescuecloud-minio-data:
+    external: true
+    name: rescuecloud-minio-data
+
+networks:
+  rescuecloud-network:
+    external: true
+    name: rescuecloud-network
