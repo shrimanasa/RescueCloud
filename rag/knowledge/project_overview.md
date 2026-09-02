@@ -27,8 +27,3 @@ Main services:
 - Recovery backend: http://127.0.0.1:8002
 - PostgreSQL: localhost:5432
 - Recovery PostgreSQL: localhost:5433
-- MinIO console: http://localhost:9001
-
-# style: format markdown headings in architecture overview
-
-# style: normalize line breaks across markdown docs
