@@ -1,0 +1,49 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-bdfd2de2b4babb4dc25dc8435ac997533c92d3b2",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "compilerType": "solc",
+  "toolVersions": {
+    "hardhat": "3.9.1"
+  },
+  "userSourceNameMap": {
+    "contracts/BackupLedger.sol": "project/contracts/BackupLedger.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode.linkReferences",
+            "evm.bytecode.object",
+            "evm.bytecode.opcodes",
+            "evm.bytecode.sourceMap",
+            "evm.deployedBytecode.immutableReferences",
+            "evm.deployedBytecode.linkReferences",
+            "evm.deployedBytecode.object",
+            "evm.deployedBytecode.opcodes",
+            "evm.deployedBytecode.sourceMap",
+            "evm.methodIdentifiers"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/BackupLedger.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.28;\n\ncontract BackupLedger {\n    enum BackupStatus {\n        Eligible,\n        Rejected,\n        Selected,\n        Restored\n    }\n\n    struct BackupRecord {\n        string backupName;\n        uint256 backupTimestamp;\n        string sha256Hash;\n        uint256 patientCount;\n        uint256 conditionCount;\n        string storageLocation;\n        BackupStatus status;\n        string rejectionReason;\n        bool exists;\n    }\n\n    address public immutable owner;\n\n    mapping(bytes32 => BackupRecord) private backups;\n    bytes32[] private backupKeys;\n\n    event BackupRegistered(\n        bytes32 indexed backupKey,\n        string backupName,\n        uint256 backupTimestamp,\n        string sha256Hash\n    );\n\n    event BackupRejected(\n        bytes32 indexed backupKey,\n        string backupName,\n        string reason\n    );\n\n    event RecoveryPointSelected(\n        bytes32 indexed backupKey,\n        string backupName\n    );\n\n    event BackupRestored(\n        bytes32 indexed backupKey,\n        string backupName\n    );\n\n    modifier onlyOwner() {\n        require(msg.sender == owner, \"Only ledger owner can perform this action\");\n        _;\n    }\n\n    constructor() {\n        owner = msg.sender;\n    }\n\n    function backupKey(\n        string memory backupName\n    ) public pure returns (bytes32) {\n        return keccak256(bytes(backupName));\n    }\n\n    function registerBackup(\n        string calldata backupName,\n        uint256 backupTimestamp,\n        string calldata sha256Hash,\n        uint256 patientCount,\n        uint256 conditionCount,\n        string calldata storageLocation\n    ) external onlyOwner {\n        require(bytes(backupName).length > 0, \"Backup name is required\");\n        require(bytes(sha256Hash).length > 0, \"SHA-256 hash is required\");\n        require(backupTimestamp > 0, \"Backup timestamp is required\");\n\n        bytes32 key = backupKey(backupName);\n\n        require(!backups[key].exists, \"Backup already registered\");\n\n        backups[key] = BackupRecord({\n            backupName: backupName,\n            backupTimestamp: backupTimestamp,\n            sha256Hash: sha256Hash,\n            patientCount: patientCount,\n            conditionCount: conditionCount,\n            storageLocation: storageLocation,\n            status: BackupStatus.Eligible,\n            rejectionReason: \"\",\n            exists: true\n        });\n\n        backupKeys.push(key);\n\n        emit BackupRegistered(\n            key,\n            backupName,\n            backupTimestamp,\n            sha256Hash\n        );\n    }\n\n    function verifyBackupHash(\n        string calldata backupName,\n        string calldata calculatedHash\n    ) external view returns (bool) {\n        bytes32 key = backupKey(backupName);\n\n        require(backups[key].exists, \"Backup not found\");\n\n        return keccak256(bytes(backups[key].sha256Hash))\n            == keccak256(bytes(calculatedHash));\n    }\n\n    function rejectBackup(\n        string calldata backupName,\n        string calldata reason\n    ) external onlyOwner {\n        bytes32 key = backupKey(backupName);\n\n        require(backups[key].exists, \"Backup not found\");\n\n        backups[key].status = BackupStatus.Rejected;\n        backups[key].rejectionReason = reason;\n\n        emit BackupRejected(key, backupName, reason);\n    }\n\n    function selectRecoveryPoint(\n        string calldata backupName\n    ) external onlyOwner {\n        bytes32 key = backupKey(backupName);\n\n        require(backups[key].exists, \"Backup not found\");\n        require(\n            backups[key].status == BackupStatus.Eligible,\n            \"Backup is not eligible\"\n        );\n\n        backups[key].status = BackupStatus.Selected;\n\n        emit RecoveryPointSelected(key, backupName);\n    }\n\n    function markBackupRestored(\n        string calldata backupName\n    ) external onlyOwner {\n        bytes32 key = backupKey(backupName);\n\n        require(backups[key].exists, \"Backup not found\");\n        require(\n            backups[key].status == BackupStatus.Selected,\n            \"Backup was not selected\"\n        );\n\n        backups[key].status = BackupStatus.Restored;\n\n        emit BackupRestored(key, backupName);\n    }\n\n    function getBackup(\n        string calldata backupName\n    ) external view returns (BackupRecord memory) {\n        bytes32 key = backupKey(backupName);\n\n        require(backups[key].exists, \"Backup not found\");\n\n        return backups[key];\n    }\n\n    function getBackupCount() external view returns (uint256) {\n        return backupKeys.length;\n    }\n\n    function getBackupNameAt(\n        uint256 index\n    ) external view returns (string memory) {\n        require(index < backupKeys.length, \"Index out of range\");\n\n        return backups[backupKeys[index]].backupName;\n    }\n\n    function findLatestEligibleBefore(\n        uint256 compromiseTimestamp\n    ) external view returns (BackupRecord memory selectedBackup) {\n        uint256 latestTimestamp = 0;\n        bool found = false;\n\n        for (uint256 index = 0; index < backupKeys.length; index++) {\n            BackupRecord storage candidate =\n                backups[backupKeys[index]];\n\n            bool eligible =\n                candidate.status == BackupStatus.Eligible;\n\n            bool beforeCompromise =\n                candidate.backupTimestamp < compromiseTimestamp;\n\n            bool newerThanCurrent =\n                candidate.backupTimestamp > latestTimestamp;\n\n            if (\n                eligible\n                && beforeCompromise\n                && newerThanCurrent\n            ) {\n                selectedBackup = candidate;\n                latestTimestamp = candidate.backupTimestamp;\n                found = true;\n            }\n        }\n\n        require(\n            found,\n            \"No eligible backup exists before compromise time\"\n        );\n    }\n}\n"
+      }
+    }
+  }
+}
