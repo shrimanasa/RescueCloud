@@ -1,0 +1,17 @@
+backend/.venv/
+__pycache__/
+*.pyc
+.DS_Store
+backups/
+recovery-download/
+.env
+
+# Backup and temp files
+*.bak
+*.before-*
+*.original_git
+*.previous-ui-backup
+
+# Large Synthea files exceeding GitHub's 100MB limit
+data/synthea/csv/claims_transactions.csv
+data/synthea/csv/observations.csv
