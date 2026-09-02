@@ -1,0 +1,121 @@
+services:
+  db:
+    image: postgres:16
+    container_name: rescuecloud-db
+    env_file: .env
+    command: postgres -c wal_level=replica -c archive_mode=on -c "archive_command=test ! -f /wal_archive/%f && cp %p /wal_archive/%f"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - rescuecloud-postgres-data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./wal_archive:/wal_archive
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - rescuecloud-network
+
+
+  minio:
+    image: minio/minio
+    container_name: rescuecloud-minio
+    env_file: .env
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - rescuecloud-minio-data:/data
+    networks:
+      - rescuecloud-network
+
+  backend:
+    build: ./backend
+    container_name: rescuecloud-backend-container
+    env_file: .env
+    environment:
+      DB_HOST: rescuecloud-db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./backups:/backups:ro
+      - ./wal_archive:/wal_archive:ro
+      - ./.env:/.env:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - rescuecloud-network
+
+  frontend:
+    build: ./frontend
+    container_name: rescuecloud-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - rescuecloud-network
+
+  # -----------------------------------------------------------------------
+  # Automated backup scheduler
+  # Calls backup.sh every BACKUP_INTERVAL_SECONDS (default: 300 = 5 min).
+  # This gives a stated, verifiable RPO of 5 minutes.
+  # Override with: BACKUP_INTERVAL_SECONDS=60 docker compose up
+  # -----------------------------------------------------------------------
+  backup-scheduler:
+    image: alpine:3.19
+    container_name: rescuecloud-backup-scheduler
+    restart: unless-stopped
+    environment:
+      BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-300}
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./backups:/backups
+      - ./wal_archive:/wal_archive
+      - ./.env:/.env:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    entrypoint: >
+      /bin/sh -c "
+        apk add --no-cache bash docker-cli python3 > /dev/null 2>&1;
+        echo 'Backup scheduler started. Interval: '$$BACKUP_INTERVAL_SECONDS's';
+        while true; do
+          echo \"[$(date -u +'%Y-%m-%dT%H:%M:%SZ')] Running scheduled backup...\";
+          bash /scripts/backup.sh && echo '[OK] Backup complete.' || echo '[ERR] Backup failed.';
+          sleep $$BACKUP_INTERVAL_SECONDS;
+        done
+      "
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - rescuecloud-network
+
+volumes:
+  rescuecloud-postgres-data:
+    name: rescuecloud-postgres-data
+
+  rescuecloud-minio-data:
+    external: true
+    name: rescuecloud-minio-data
+
+networks:
+  rescuecloud-network:
+    external: true
+    name: rescuecloud-network
