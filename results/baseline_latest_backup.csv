@@ -1,0 +1,2 @@
+run_id,strategy,selected_backup,restore_seconds,recovered_patients,recovered_conditions,attack_marker_exists,clean_recovery
+20260713_181045,latest_backup_baseline,rescuecloud_2026-07-13_18-10-51.sql,0.208064,1108,37724,True,False

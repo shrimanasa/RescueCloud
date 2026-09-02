@@ -1,0 +1,18 @@
+{
+  "run_id": "20260729_112947",
+  "compromise_time": "2026-07-29T11:29:53+05:30",
+  "clean_backup": "rescuecloud_2026-07-29_11-29-48.sql",
+  "rejected_backup": "rescuecloud_2026-07-29_11-29-55.sql",
+  "prediction": "suspicious",
+  "decision_score": -0.12005,
+  "detection_latency_seconds": 0.13972,
+  "backup_selection_seconds": 0.876578,
+  "hash_verification_seconds": 0.00762,
+  "restore_seconds": 7.672218,
+  "rpo_seconds": 5.0,
+  "rto_seconds": 13.979,
+  "recovered_patients": 1108,
+  "recovered_conditions": 37724,
+  "attack_marker_absent": true,
+  "recovery_success": true
+}

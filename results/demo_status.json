@@ -1,0 +1,7 @@
+{
+  "status": "completed",
+  "message": "Controlled attack detected and clean recovery completed successfully.",
+  "started_at": "2026-07-29T06:05:23.041930+00:00",
+  "finished_at": "2026-07-29T06:05:42.933861+00:00",
+  "return_code": 0
+}
