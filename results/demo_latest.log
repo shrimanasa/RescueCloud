@@ -1,0 +1,185 @@
+========== PREFLIGHT CHECK ==========
+
+========== RESCUECLOUD PREFLIGHT CHECK ==========
+
+✅ Environment: Required variables loaded
+✅ PostgreSQL: 1108 patients, 37724 conditions
+✅ Backend API: HTTP 200
+✅ MinIO: HTTP 200
+✅ Frontend: HTTP 200
+✅ Recovery API: HTTP 200
+✅ Blockchain RPC: Connected, chain ID 31337
+✅ BackupLedger contract: 0xCace1b78160AE76398F486c8a18044da0d66d86D
+✅ Latest backup: rescuecloud_2026-07-29_11-34-53.sql (5.75 MB)
+✅ Backup checksum: SHA-256 verified
+
+=================================================
+
+PREFLIGHT PASSED
+RescueCloud is ready for backup and recovery operations.
+
+========== CONTROLLED RECOVERY ==========
+Creating PostgreSQL backup...
+Creating SHA-256 checksum...
+Uploading backup to MinIO...
+`/backups/rescuecloud_2026-07-29_11-35-24.sql` -> `local/rescuecloud-backups/rescuecloud_2026-07-29_11-35-24.sql`
+┌──────────┬─────────────┬──────────┬──────────────┐
+│ Total    │ Transferred │ Duration │ Speed        │
+│ 5.75 MiB │ 5.75 MiB    │ 00m00s   │ 198.74 MiB/s │
+└──────────┴─────────────┴──────────┴──────────────┘
+`/backups/rescuecloud_2026-07-29_11-35-24.sql.sha256` -> `local/rescuecloud-backups/rescuecloud_2026-07-29_11-35-24.sql.sha256`
+┌───────┬─────────────┬──────────┬─────────────┐
+│ Total │ Transferred │ Duration │ Speed       │
+│ 102 B │ 102 B       │ 00m00s   │ 21.45 KiB/s │
+└───────┴─────────────┴──────────┴─────────────┘
+Registering backup metadata on blockchain...
+Backup registered on blockchain.
+Backup: rescuecloud_2026-07-29_11-35-24.sql
+Block number: 178
+Transaction: b801dead3433ae50adce78ab4d2b595e8d563acce728b092d0f78c727d233702
+Registered backups: 29
+Backup created and uploaded: /Users/shrimanasa/RescueCloud/backups/rescuecloud_2026-07-29_11-35-24.sql
+SHA-256 created and uploaded: /Users/shrimanasa/RescueCloud/backups/rescuecloud_2026-07-29_11-35-24.sql.sha256
+Blockchain ledger registration completed.
+Creating PostgreSQL backup...
+Creating SHA-256 checksum...
+Uploading backup to MinIO...
+`/backups/rescuecloud_2026-07-29_11-35-31.sql` -> `local/rescuecloud-backups/rescuecloud_2026-07-29_11-35-31.sql`
+┌──────────┬─────────────┬──────────┬──────────────┐
+│ Total    │ Transferred │ Duration │ Speed        │
+│ 5.76 MiB │ 5.76 MiB    │ 00m00s   │ 197.82 MiB/s │
+└──────────┴─────────────┴──────────┴──────────────┘
+`/backups/rescuecloud_2026-07-29_11-35-31.sql.sha256` -> `local/rescuecloud-backups/rescuecloud_2026-07-29_11-35-31.sql.sha256`
+┌───────┬─────────────┬──────────┬─────────────┐
+│ Total │ Transferred │ Duration │ Speed       │
+│ 102 B │ 102 B       │ 00m00s   │ 20.87 KiB/s │
+└───────┴─────────────┴──────────┴─────────────┘
+Registering backup metadata on blockchain...
+Backup registered on blockchain.
+Backup: rescuecloud_2026-07-29_11-35-31.sql
+Block number: 179
+Transaction: 799b833c6518c69f335292fb468d094165aae50a5b77df030ed0de20164a3f10
+Registered backups: 30
+Backup created and uploaded: /Users/shrimanasa/RescueCloud/backups/rescuecloud_2026-07-29_11-35-31.sql
+SHA-256 created and uploaded: /Users/shrimanasa/RescueCloud/backups/rescuecloud_2026-07-29_11-35-31.sql.sha256
+Blockchain ledger registration completed.
+Estimated compromise time: 2026-07-29T11:35:29+05:30
+Blockchain backups: 30
+
+Rejected: rescuecloud_2026-07-29_11-35-31.sql
+
+Selected clean recovery point: rescuecloud_2026-07-29_11-35-24.sql
+Backup timestamp: 1785305124
+Blockchain block: 181
+Status: Selected
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 305B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.12-slim
+#2 DONE 2.6s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/8] FROM docker.io/library/python:3.12-slim@sha256:57cd7c3a7a273101a6485ba99423ee568157882804b1124b4dd04266317710de
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 945B done
+#5 DONE 0.0s
+
+#6 [5/8] COPY main.py .
+#6 CACHED
+
+#7 [7/8] COPY models ./models
+#7 CACHED
+
+#8 [2/8] WORKDIR /app
+#8 CACHED
+
+#9 [3/8] COPY requirements.txt .
+#9 CACHED
+
+#10 [4/8] RUN pip install --no-cache-dir -r requirements.txt
+#10 CACHED
+
+#11 [6/8] COPY incidents.py .
+#11 CACHED
+
+#12 [8/8] COPY rag ./rag
+#12 CACHED
+
+#13 exporting to image
+#13 exporting layers done
+#13 writing image sha256:392d34805f6a9ad39db0723805f835598627dcfb879dc983c7f350cc62c7b851 done
+#13 naming to docker.io/library/rescuecloud-backend done
+#13 DONE 0.0s
+Blockchain-selected backup: rescuecloud_2026-07-29_11-35-24.sql
+Hash verification: PASSED
+Creating fresh recovery environment...
+Waiting for recovery database...
+Restoring selected clean backup...
+Recovered patients: 1108
+Recovered conditions: 37724
+Waiting for recovery API...
+Recovery API: http://127.0.0.1:8002/patients
+Blockchain status: Restored
+Blockchain block: 182
+CLEAN RECOVERY COMPLETED SUCCESSFULLY
+
+Cleaning previous attack marker...
+
+1. Creating clean pre-attack backup...
+
+2. Analysing audit-event sequence...
+Audit event 1 : normal | score: 0.175213
+Audit event 2 : normal | score: 0.143894
+Audit event 3 : suspicious | score: -0.12005
+Automatically estimated compromise time: 2026-07-29T11:35:29+05:30
+Prediction: suspicious
+Decision score: -0.12005
+Detection latency: 0.1521 seconds
+
+3. Adding controlled compromise marker...
+
+4. Creating post-attack backup...
+
+5. Selecting latest clean backup...
+Selection time: 0.9492 seconds
+
+6. Verifying clean backup against blockchain...
+Blockchain hash verified: True
+Hash-verification time: 0.008 seconds
+
+7. Restoring selected clean backup...
+
+8. Validating recovered database...
+
+Metrics CSV: /Users/shrimanasa/RescueCloud/results/research_metrics.csv
+Experiment JSON: /Users/shrimanasa/RescueCloud/results/experiment_20260729_113524.json
+Incident saved to security_incidents.
+
+========== EXPERIMENT RESULTS ==========
+run_id: 20260729_113524
+compromise_time: 2026-07-29T11:35:29+05:30
+clean_backup: rescuecloud_2026-07-29_11-35-24.sql
+rejected_backup: rescuecloud_2026-07-29_11-35-31.sql
+prediction: suspicious
+decision_score: -0.12005
+detection_latency_seconds: 0.152119
+backup_selection_seconds: 0.94919
+hash_verification_seconds: 0.007986
+restore_seconds: 9.11152
+rpo_seconds: 5.0
+rto_seconds: 15.427
+recovered_patients: 1108
+recovered_conditions: 37724
+attack_marker_absent: True
+recovery_success: True
+========================================
+
+RESEARCH EXPERIMENT COMPLETED SUCCESSFULLY

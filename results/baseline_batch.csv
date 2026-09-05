@@ -1,0 +1,11 @@
+run_id,strategy,selected_backup,restore_only_seconds,recovered_patients,recovered_conditions,attack_marker_exists,clean_recovery
+20260713_151347,latest_backup,rescuecloud_2026-07-13_15-13-52.sql,0.174012,1108,37724,True,False
+20260713_180828,latest_backup,rescuecloud_2026-07-13_18-08-33.sql,0.183637,1108,37724,True,False
+20260713_180846,latest_backup,rescuecloud_2026-07-13_18-08-51.sql,0.173849,1108,37724,True,False
+20260713_180902,latest_backup,rescuecloud_2026-07-13_18-09-08.sql,0.175458,1108,37724,True,False
+20260713_180919,latest_backup,rescuecloud_2026-07-13_18-09-24.sql,0.167787,1108,37724,True,False
+20260713_180936,latest_backup,rescuecloud_2026-07-13_18-09-41.sql,0.16938,1108,37724,True,False
+20260713_180953,latest_backup,rescuecloud_2026-07-13_18-09-58.sql,0.16646,1108,37724,True,False
+20260713_181010,latest_backup,rescuecloud_2026-07-13_18-10-15.sql,0.167465,1108,37724,True,False
+20260713_181028,latest_backup,rescuecloud_2026-07-13_18-10-33.sql,0.170202,1108,37724,True,False
+20260713_181045,latest_backup,rescuecloud_2026-07-13_18-10-51.sql,0.169522,1108,37724,True,False
