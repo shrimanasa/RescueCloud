@@ -3,151 +3,231 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RescueCloud — Enterprise SOC & EHR Disaster Recovery</title>
+  <title>RescueCloud — Enterprise SOC &amp; EHR Disaster Recovery</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
+    /* ── ORIGINAL COLOR PALETTE ── */
     :root {
-      --bg-dark: #090c10;
-      --bg-card: #131722;
-      --bg-card-hover: #1c2230;
-      --border-color: #21283b;
-      --border-accent: #0ea5e9;
-      --cyan: #0ea5e9;
-      --cyan-light: rgba(14, 165, 233, 0.12);
-      --cyan-glow: rgba(14, 165, 233, 0.2);
-      --green: #00e676;
-      --green-glow: rgba(0, 230, 118, 0.15);
-      --amber: #ffb300;
-      --amber-glow: rgba(255, 179, 0, 0.15);
-      --red: #ff3d00;
-      --red-glow: rgba(255, 61, 0, 0.2);
-      --text-main: #f0f6fc;
-      --text-muted: #8b949e;
-      --font-sans: 'Inter', -apple-system, sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --bg-dark:        #090c10;
+      --bg-card:        #131722;
+      --bg-card-hover:  #1c2230;
+      --border-color:   #21283b;
+      --border-accent:  #0ea5e9;
+      --cyan:           #0ea5e9;
+      --cyan-light:     rgba(14,165,233,0.12);
+      --cyan-glow:      rgba(14,165,233,0.2);
+      --green:          #00e676;
+      --green-glow:     rgba(0,230,118,0.15);
+      --amber:          #ffb300;
+      --amber-glow:     rgba(255,179,0,0.15);
+      --red:            #ff3d00;
+      --red-glow:       rgba(255,61,0,0.2);
+      --text-main:      #f0f6fc;
+      --text-muted:     #8b949e;
+      --font-sans:      'Inter', -apple-system, sans-serif;
+      --font-mono:      'JetBrains Mono', monospace;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background-color: var(--bg-dark);
+      background: var(--bg-dark);
       color: var(--text-main);
       font-family: var(--font-sans);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
-    /* LANDING PAGE & ADMIN LOGIN STYLES */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+    /* ════════════════════════════════════════════
+       LANDING PAGE
+    ════════════════════════════════════════════ */
     .landing-wrapper {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      padding: 3rem 1.5rem;
-      background: radial-gradient(circle at top center, rgba(14, 165, 233, 0.15) 0%, rgba(9, 12, 16, 0.98) 70%);
+      justify-content: center;
+      padding: 4rem 2rem;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(14,165,233,0.13) 0%, transparent 65%),
+        var(--bg-dark);
+      position: relative;
+      overflow: hidden;
     }
-    .landing-hero {
-      max-width: 900px;
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
-    .landing-badge {
-      display: inline-block;
-      padding: 0.35rem 1rem;
+
+    /* ── EYEBROW BADGE ── */
+    .landing-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 1rem;
       border-radius: 20px;
-      background: rgba(14, 165, 233, 0.12);
+      border: 1px solid rgba(14,165,233,0.3);
+      background: rgba(14,165,233,0.08);
       color: var(--cyan);
-      border: 1px solid rgba(14, 165, 233, 0.3);
       font-family: var(--font-mono);
-      font-size: 0.8rem;
+      font-size: 0.72rem;
       font-weight: 600;
-      margin-bottom: 1rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
     }
+    .landing-eyebrow::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 6px var(--cyan);
+    }
+
+    .landing-hero {
+      text-align: center;
+      max-width: 760px;
+      margin-bottom: 0;
+      position: relative;
+      z-index: 2;
+    }
+
     .landing-title {
-      font-size: 2.8rem;
+      font-size: clamp(2.4rem, 5vw, 3.6rem);
       font-weight: 800;
-      letter-spacing: -0.03em;
-      background: linear-gradient(135deg, #ffffff 40%, #0ea5e9 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 1rem;
-      line-height: 1.2;
+      letter-spacing: -0.04em;
+      line-height: 1.15;
+      color: var(--text-main);
     }
-    .landing-subtitle {
-      font-size: 1.05rem;
+    .landing-title em {
+      font-style: italic;
+      color: var(--cyan);
+    }
+    .landing-sub {
+      font-size: 0.95rem;
       color: var(--text-muted);
-      max-width: 720px;
-      margin: 0 auto 2.5rem;
+      max-width: 560px;
+      margin: 1rem auto 0;
+      line-height: 1.7;
     }
-    .landing-features-grid {
+
+    /* ── RADIAL STARBURST DIAGRAM ── */
+    .starburst-wrap {
+      position: relative;
+      width: 520px;
+      height: 300px;
+      margin: 2.5rem auto;
+      z-index: 2;
+    }
+    .starburst-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+    /* Subtle pulse on center dot */
+    @keyframes corePulse {
+      0%, 100% { r: 6; opacity: 1; }
+      50%       { r: 9; opacity: 0.7; }
+    }
+    @keyframes lineGrow {
+      from { stroke-dashoffset: 200; opacity: 0; }
+      to   { stroke-dashoffset: 0;   opacity: 1; }
+    }
+    .sb-line {
+      stroke: var(--cyan);
+      stroke-width: 1;
+      opacity: 0.35;
+      stroke-dasharray: 200;
+      stroke-dashoffset: 0;
+    }
+    .sb-line.bright { opacity: 0.8; stroke-width: 1.5; }
+    .sb-node {
+      fill: var(--cyan);
+    }
+    .sb-core {
+      animation: corePulse 2.5s ease-in-out infinite;
+    }
+    .sb-label {
+      fill: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+    }
+    .sb-label.accent { fill: var(--cyan); font-weight: 700; }
+
+    /* ── LOGIN CARD ── */
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 2.25rem;
+      box-shadow:
+        0 20px 60px rgba(0,0,0,0.6),
+        0 0 30px var(--cyan-glow);
+      margin-bottom: 3rem;
+      position: relative;
+      z-index: 2;
+    }
+    .login-logo {
+      width: 46px; height: 46px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--cyan), #0d9488);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #fff;
+      margin: 0 auto 1.25rem;
+      box-shadow: 0 0 20px var(--cyan-glow);
+    }
+    .login-head { text-align: center; margin-bottom: 1.75rem; }
+    .login-head h2 { font-size: 1.15rem; font-weight: 700; color: var(--text-main); }
+    .login-head p  { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 0.25rem; }
+
+    /* ── FEATURE GRID ── */
+    .features-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 1rem;
-      max-width: 1100px;
+      max-width: 1000px;
       width: 100%;
-      margin-bottom: 2.5rem;
+      position: relative;
+      z-index: 2;
     }
-    .feature-card {
+    .feat-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 10px;
-      padding: 1.2rem;
-      text-align: left;
-      transition: all 0.2s;
+      padding: 1.25rem;
+      transition: border-color 0.2s, transform 0.2s;
     }
-    .feature-card:hover {
-      border-color: var(--cyan);
-      transform: translateY(-3px);
-    }
-    .feature-title {
-      font-size: 0.85rem;
+    .feat-card:hover { border-color: var(--cyan); transform: translateY(-3px); }
+    .feat-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
       font-weight: 700;
       color: var(--cyan);
-      margin-bottom: 0.4rem;
-      font-family: var(--font-mono);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.04em;
     }
-    .feature-desc {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
-    .login-card {
-      background: #131722;
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 2rem;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 25px var(--cyan-glow);
-    }
-    .login-header {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-    .login-header h2 {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-    .login-header p {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-      margin-top: 0.2rem;
-    }
+    .feat-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.55; }
 
-    /* HEADER & HEALTH STRIP */
+    /* ════════════════════════════════════════════
+       HEADER
+    ════════════════════════════════════════════ */
     header {
-      background: #0d1117;
+      background: rgba(9,12,16,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-color);
-      padding: 1rem 2rem;
+      padding: 0 2rem;
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -155,90 +235,86 @@
       top: 0;
       z-index: 100;
     }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
+    .brand { display: flex; align-items: center; gap: 0.85rem; }
     .brand-logo {
-      width: 38px;
-      height: 38px;
-      background: linear-gradient(135deg, #0ea5e9, #0d9488);
+      width: 34px; height: 34px;
       border-radius: 8px;
+      background: linear-gradient(135deg, var(--cyan), #0d9488);
       display: grid;
       place-items: center;
-      font-weight: 700;
+      font-weight: 800;
+      font-size: 0.85rem;
       color: #fff;
-      font-size: 1.2rem;
-      box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+      box-shadow: 0 0 12px var(--cyan-glow);
+      flex-shrink: 0;
     }
-    .brand-text h1 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text-main);
-    }
-    .brand-text p {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-    }
+    .brand-name { font-size: 1rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text-main); }
+    .brand-tag  { font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono); }
 
-    /* HEALTH STRIP */
     .health-strip {
       display: flex;
       gap: 1.25rem;
       background: #161b22;
-      padding: 0.4rem 1rem;
-      border-radius: 20px;
       border: 1px solid var(--border-color);
-      font-size: 0.75rem;
+      border-radius: 20px;
+      padding: 0.4rem 1.1rem;
       font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
     }
-    .health-item {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--text-muted);
-    }
-    .status-dot.ok { background: var(--green); box-shadow: 0 0 8px var(--green); }
-    .status-dot.warn { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
-    .status-dot.bad { background: var(--red); box-shadow: 0 0 8px var(--red); }
+    .health-item { display: flex; align-items: center; gap: 0.4rem; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); }
+    .status-dot.ok   { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .status-dot.warn { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+    .status-dot.bad  { background: var(--red);   box-shadow: 0 0 6px var(--red); }
 
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .clock-badge {
+    .header-right { display: flex; align-items: center; gap: 0.75rem; }
+    .clock {
       font-family: var(--font-mono);
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
       background: #161b22;
-      padding: 0.4rem 0.8rem;
-      border-radius: 6px;
       border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.35rem 0.8rem;
     }
+
+    /* ════════════════════════════════════════════
+       BUTTONS
+    ════════════════════════════════════════════ */
+    .btn {
+      border-radius: 7px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid var(--border-color);
+      background: #1f293d;
+      color: var(--text-main);
+      padding: 0.45rem 0.9rem;
+    }
+    .btn:hover { background: #2a3752; }
+
+    .btn-cyan {
+      background: linear-gradient(135deg, var(--cyan), #0d9488);
+      color: #fff;
+      border: none;
+      font-weight: 700;
+      box-shadow: 0 0 14px var(--cyan-glow);
+    }
+    .btn-cyan:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: 0 0 22px var(--cyan-glow); }
+
     .btn-emergency {
       background: linear-gradient(135deg, #d32f2f, #b71c1c);
       color: #fff;
       border: 1px solid var(--red);
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 0.8rem;
+      padding: 0.45rem 1rem;
+      border-radius: 7px;
+      font-weight: 700;
+      font-size: 0.75rem;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      box-shadow: 0 0 12px var(--red-glow);
-      transition: all 0.2s;
+      box-shadow: 0 0 10px var(--red-glow);
+      transition: all 0.15s;
     }
     .btn-emergency:hover { transform: translateY(-1px); box-shadow: 0 0 18px var(--red-glow); }
 
@@ -246,696 +322,716 @@
       background: #161b22;
       color: var(--text-muted);
       border: 1px solid var(--border-color);
-      padding: 0.5rem 0.8rem;
-      border-radius: 6px;
-      font-size: 0.78rem;
+      padding: 0.45rem 0.8rem;
+      border-radius: 7px;
+      font-size: 0.72rem;
       font-family: var(--font-mono);
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.15s;
     }
     .btn-logout:hover { color: var(--text-main); border-color: var(--cyan); }
 
-    /* MAIN CONTENT AREA */
-    main {
-      flex: 1;
-      padding: 1.5rem 2rem;
-      max-width: 1600px;
-      margin: 0 auto;
-      width: 100%;
-    }
+    /* ════════════════════════════════════════════
+       MAIN / LAYOUT
+    ════════════════════════════════════════════ */
+    main { padding: 1.75rem 2rem; max-width: 1600px; margin: 0 auto; width: 100%; }
 
-    /* CIRCUIT BREAKER BANNER */
+    /* ════════════════════════════════════════════
+       CIRCUIT BREAKER BANNER
+    ════════════════════════════════════════════ */
     .circuit-banner {
-      background: linear-gradient(90deg, rgba(255, 61, 0, 0.15), rgba(198, 40, 40, 0.2));
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(90deg, rgba(255,61,0,0.15), rgba(198,40,40,0.2));
       border: 1px solid var(--red);
       border-radius: 10px;
       padding: 1rem 1.5rem;
       margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       animation: pulseBanner 2s infinite alternate;
     }
     @keyframes pulseBanner {
-      0% { border-color: rgba(255, 61, 0, 0.6); box-shadow: 0 0 10px rgba(255, 61, 0, 0.2); }
-      100% { border-color: rgba(255, 61, 0, 1); box-shadow: 0 0 20px rgba(255, 61, 0, 0.4); }
+      0%   { border-color: rgba(255,61,0,0.6); box-shadow: 0 0 10px rgba(255,61,0,0.2); }
+      100% { border-color: rgba(255,61,0,1);   box-shadow: 0 0 20px rgba(255,61,0,0.4); }
     }
-    .banner-title {
-      font-family: var(--font-mono);
-      font-weight: 700;
-      color: var(--red);
-      font-size: 0.95rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .banner-sub {
-      font-size: 0.8rem;
-      color: #cbd5e0;
-      margin-top: 0.2rem;
-      font-family: var(--font-mono);
-    }
+    .banner-title { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--red); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; }
+    .banner-sub   { font-size: 0.78rem; color: #cbd5e0; font-family: var(--font-mono); }
 
-    /* EXECUTIVE METRICS GRID */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
+    /* ════════════════════════════════════════════
+       METRIC CARDS
+    ════════════════════════════════════════════ */
+    .metrics-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.5rem; }
     .metric-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 10px;
-      padding: 1.1rem 1.25rem;
+      padding: 1.25rem 1.4rem;
       position: relative;
       overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
     }
-    .metric-card::before {
+    .metric-card:hover { border-color: var(--cyan); transform: translateY(-2px); }
+    .metric-card::after {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, #0ea5e9, #0d9488);
-    }
-    .metric-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
+      background: linear-gradient(90deg, var(--cyan), #0d9488);
     }
     .metric-label {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
       font-weight: 600;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     .metric-badge {
-      font-size: 0.65rem;
       font-family: var(--font-mono);
+      font-size: 0.62rem;
       padding: 0.15rem 0.5rem;
-      border-radius: 12px;
-      background: rgba(0, 230, 118, 0.1);
+      border-radius: 10px;
+      background: rgba(0,230,118,0.1);
       color: var(--green);
-      border: 1px solid rgba(0, 230, 118, 0.3);
+      border: 1px solid rgba(0,230,118,0.3);
     }
-    .metric-val {
-      font-size: 1.8rem;
-      font-weight: 700;
-      font-family: var(--font-mono);
-      letter-spacing: -0.03em;
+    .metric-badge.cyan-b {
+      background: var(--cyan-light);
       color: var(--cyan);
+      border-color: rgba(14,165,233,0.3);
     }
-    .metric-sub {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      margin-top: 0.2rem;
-    }
+    .metric-val { font-size: 2rem; font-weight: 700; font-family: var(--font-mono); letter-spacing: -0.04em; color: var(--cyan); line-height: 1.1; }
+    .metric-val.green { color: var(--green); }
+    .metric-val.small { font-size: 1.1rem; }
+    .metric-sub { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.35rem; }
 
-    /* NAV TILES (DARK THEME) */
-    .nav-tiles-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
+    /* ════════════════════════════════════════════
+       NAV TILES
+    ════════════════════════════════════════════ */
+    .nav-tiles-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
     .nav-tile {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      padding: 1.25rem 1rem;
+      padding: 1.1rem 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      user-select: none;
-    }
-    .nav-tile:hover {
-      background: var(--bg-card-hover);
-      border-color: #2d374e;
-      transform: translateY(-2px);
-    }
-    .nav-tile.active {
-      background: linear-gradient(180deg, rgba(14, 165, 233, 0.15), var(--bg-card));
-      border-color: var(--cyan);
-      box-shadow: 0 0 20px var(--cyan-glow);
-    }
-    .nav-tile-icon {
-      font-size: 1.4rem;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-      font-weight: 700;
-    }
-    .nav-tile.active .nav-tile-icon {
-      color: var(--cyan);
-    }
-    .nav-tile-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      text-transform: uppercase;
-    }
-    .nav-tile.active .nav-tile-title {
-      color: var(--text-main);
-    }
-
-    /* PANEL CONTENT CONTAINER */
-    .panel-container {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 1.5rem;
-      min-height: 520px;
-    }
-    .panel-view {
-      display: none;
-    }
-    .panel-view.active {
-      display: block;
-      animation: fadeIn 0.3s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* PANEL HEADER */
-    .panel-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--border-color);
-      margin-bottom: 1.25rem;
-    }
-    .panel-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
       gap: 0.5rem;
-    }
-    .panel-subtitle {
-      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
+      user-select: none;
       color: var(--text-muted);
-      font-family: var(--font-mono);
     }
+    .nav-tile:hover { background: var(--bg-card-hover); color: var(--text-main); border-color: #2d374e; transform: translateY(-2px); }
+    .nav-tile.active { background: linear-gradient(160deg, rgba(14,165,233,0.15) 0%, var(--bg-card) 100%); border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 20px var(--cyan-glow); }
+    .nav-tile-icon { font-size: 1.2rem; }
+    .nav-tile-title { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
 
-    /* RADAR SCANNER SWEEP COMPONENT */
+    /* ════════════════════════════════════════════
+       PANEL CONTAINER
+    ════════════════════════════════════════════ */
+    .panel-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.75rem; min-height: 520px; }
+    .panel-view { display: none; }
+    .panel-view.active { display: block; animation: fadeUp 0.25s ease-out; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+    .panel-head { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; }
+    .panel-title { font-size: 1rem; font-weight: 700; color: var(--text-main); }
+    .panel-subtitle { font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 0.2rem; }
+
+    /* ════════════════════════════════════════════
+       RADAR / GAUGE
+    ════════════════════════════════════════════ */
     .radar-box {
       position: relative;
-      width: 90px;
-      height: 90px;
+      width: 90px; height: 90px;
       margin: 0.5rem auto 0.75rem;
       border-radius: 50%;
       border: 1px solid var(--border-accent);
-      background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, rgba(9, 12, 16, 0.95) 100%);
-      box-shadow: 0 0 15px var(--cyan-glow);
+      background: radial-gradient(circle, rgba(14,165,233,0.08) 0%, transparent 70%);
+      box-shadow: 0 0 12px var(--cyan-glow);
       overflow: hidden;
     }
-    .radar-grid {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      border: 1px dashed rgba(14, 165, 233, 0.25);
-    }
-    .radar-grid::before {
-      content: '';
-      position: absolute;
-      top: 50%; left: 0; right: 0; height: 1px;
-      background: rgba(14, 165, 233, 0.25);
-    }
-    .radar-grid::after {
-      content: '';
-      position: absolute;
-      left: 50%; top: 0; bottom: 0; width: 1px;
-      background: rgba(14, 165, 233, 0.25);
-    }
-    .radar-sweep {
-      position: absolute;
-      top: 50%; left: 50%;
-      width: 50%; height: 50%;
-      transform-origin: 0% 0%;
-      background: conic-gradient(from 0deg, rgba(14, 165, 233, 0.6) 0deg, rgba(14, 165, 233, 0.1) 45deg, transparent 90deg);
-      border-radius: 0 100% 0 0;
-      display: none;
-    }
-    .radar-sweep.spinning {
-      display: block;
-      animation: radarRotate 0.8s linear infinite;
-    }
-    .radar-sweep.red {
-      background: conic-gradient(from 0deg, rgba(255, 61, 0, 0.7) 0deg, rgba(255, 61, 0, 0.15) 45deg, transparent 90deg);
-    }
-    @keyframes radarRotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    .radar-ping {
-      display: inline-block;
-      width: 6px; height: 6px; border-radius: 50%; background: var(--green);
-      animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
-    }
-    @keyframes ping {
-      75%, 100% { transform: scale(2.5); opacity: 0; }
-    }
+    .radar-grid { position: absolute; inset: 0; border-radius: 50%; border: 1px dashed rgba(14,165,233,0.25); }
+    .radar-grid::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(14,165,233,0.25); }
+    .radar-grid::after  { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(14,165,233,0.25); }
+    .radar-sweep { position: absolute; top: 50%; left: 50%; width: 50%; height: 50%; transform-origin: 0 0; background: conic-gradient(from 0deg, rgba(14,165,233,0.6) 0deg, rgba(14,165,233,0.1) 45deg, transparent 90deg); border-radius: 0 100% 0 0; display: none; }
+    .radar-sweep.spinning { display: block; animation: radarRotate 0.8s linear infinite; }
+    .radar-sweep.red { background: conic-gradient(from 0deg, rgba(255,61,0,0.7) 0deg, rgba(255,61,0,0.15) 45deg, transparent 90deg); }
+    @keyframes radarRotate { to { transform: rotate(360deg); } }
+    .radar-ping { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: ping 1.5s ease-out infinite; }
+    @keyframes ping { 75%,100% { transform: scale(2.2); opacity: 0; } }
 
-    /* TABLES */
-    .soc-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.82rem;
-    }
-    .soc-table th {
-      text-align: left;
-      padding: 0.6rem 0.8rem;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-      border-bottom: 1px solid var(--border-color);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      background: #0d1117;
-    }
-    .soc-table td {
-      padding: 0.65rem 0.8rem;
-      border-bottom: 1px solid rgba(33, 40, 59, 0.5);
-    }
-    .soc-table tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
-    }
+    .gauge-container { background: #0d1117; border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; text-align: center; }
+    .gauge-score { font-size: 2.8rem; font-weight: 700; font-family: var(--font-mono); margin: 0.25rem 0; }
+    .gauge-score.green { color: var(--green); text-shadow: 0 0 14px var(--green); }
+    .gauge-score.amber { color: var(--amber); text-shadow: 0 0 14px var(--amber); }
+    .gauge-score.red   { color: var(--red);   text-shadow: 0 0 16px var(--red); }
+    .gauge-bar-bg { height: 6px; background: #161b22; border-radius: 4px; overflow: hidden; margin: 0.75rem 0; }
+    .gauge-bar-fill { height: 100%; width: 0; transition: width 0.4s ease, background 0.4s ease; border-radius: 4px; }
 
-    /* BADGES */
-    .status-badge {
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 0.2rem 0.6rem;
-      border-radius: 4px;
-      letter-spacing: 0.05em;
-    }
-    .status-badge.ok { background: rgba(0, 230, 118, 0.15); color: var(--green); border: 1px solid rgba(0, 230, 118, 0.3); }
-    .status-badge.bad { background: rgba(255, 61, 0, 0.15); color: var(--red); border: 1px solid rgba(255, 61, 0, 0.3); }
+    /* ════════════════════════════════════════════
+       TABLES
+    ════════════════════════════════════════════ */
+    .soc-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .soc-table th { text-align: left; padding: 0.6rem 0.9rem; color: var(--text-muted); font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border-color); background: #0d1117; }
+    .soc-table td { padding: 0.7rem 0.9rem; border-bottom: 1px solid rgba(33,40,59,0.5); }
+    .soc-table tr:hover td { background: rgba(255,255,255,0.02); }
 
-    /* INPUTS & BUTTONS */
+    /* ════════════════════════════════════════════
+       BADGES
+    ════════════════════════════════════════════ */
+    .status-badge { font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; letter-spacing: 0.05em; }
+    .status-badge.ok  { background: rgba(0,230,118,0.15); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
+    .status-badge.bad { background: rgba(255,61,0,0.15);  color: var(--red);   border: 1px solid rgba(255,61,0,0.3); }
+
+    /* ════════════════════════════════════════════
+       INPUTS
+    ════════════════════════════════════════════ */
     .input-field, .select-field {
       background: #0d1117;
       border: 1px solid var(--border-color);
       color: var(--text-main);
-      padding: 0.5rem 0.8rem;
-      border-radius: 6px;
+      padding: 0.5rem 0.85rem;
+      border-radius: 7px;
       font-family: var(--font-sans);
-      font-size: 0.85rem;
+      font-size: 0.83rem;
       width: 100%;
+      transition: border-color 0.15s;
     }
-    .input-field:focus, .select-field:focus {
-      outline: none;
-      border-color: var(--cyan);
-      box-shadow: 0 0 10px var(--cyan-glow);
-    }
-    .btn {
-      background: #1f293d;
-      color: var(--text-main);
-      border: 1px solid #2d374e;
-      padding: 0.55rem 1rem;
-      border-radius: 6px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .btn:hover { background: #2a3752; }
-    .btn-cyan {
-      background: linear-gradient(135deg, #0ea5e9, #0d9488);
-      color: #fff;
-      border: none;
-    }
-    .btn-cyan:hover { opacity: 0.92; transform: translateY(-1px); }
+    .input-field:focus, .select-field:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 10px var(--cyan-glow); }
+    label { display: block; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.35rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
 
-    /* ANOMALY GAUGE CARD */
-    .gauge-container {
-      background: #0d1117;
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 1.25rem;
-      text-align: center;
-    }
-    .gauge-score {
-      font-size: 3rem;
-      font-weight: 700;
-      font-family: var(--font-mono);
-      margin: 0.3rem 0;
-    }
-    .gauge-score.green { color: var(--green); text-shadow: 0 0 15px var(--green-glow); }
-    .gauge-score.amber { color: var(--amber); text-shadow: 0 0 15px var(--amber-glow); }
-    .gauge-score.red { color: var(--red); text-shadow: 0 0 20px var(--red-glow); }
-    .gauge-bar-bg {
-      height: 8px;
-      background: #161b22;
-      border-radius: 5px;
-      overflow: hidden;
-      margin: 0.8rem 0;
-    }
-    .gauge-bar-fill {
-      height: 100%;
-      width: 0%;
-      transition: width 0.4s ease, background 0.4s ease;
-    }
+    /* ════════════════════════════════════════════
+       SUB-CARDS
+    ════════════════════════════════════════════ */
+    .sub-card { background: #0d1117; border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; }
+    .sub-card-title { font-family: var(--font-mono); font-size: 0.78rem; font-weight: 700; color: var(--cyan); letter-spacing: 0.05em; margin-bottom: 0.75rem; }
 
-    /* RAG CHAT BUBBLES */
-    .chat-box {
-      height: 320px;
-      overflow-y: auto;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 1rem;
-      background: #0d1117;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-    }
-    .chat-bubble {
-      max-width: 80%;
-      padding: 0.75rem 1rem;
-      border-radius: 10px;
-      font-size: 0.85rem;
-      line-height: 1.4;
-    }
-    .chat-bubble.user {
-      align-self: flex-end;
-      background: linear-gradient(135deg, #0ea5e9, #0d9488);
-      color: #fff;
-      border-bottom-right-radius: 2px;
-    }
-    .chat-bubble.ai {
-      align-self: flex-start;
-      background: #1c2333;
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      border-bottom-left-radius: 2px;
-    }
-    .chip-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 0.75rem;
-    }
-    .chip {
-      background: #161b22;
-      border: 1px solid var(--border-color);
-      color: var(--cyan);
-      font-size: 0.75rem;
-      padding: 0.3rem 0.75rem;
-      border-radius: 15px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
+    /* ════════════════════════════════════════════
+       BLAST RADIUS MINI CARDS
+    ════════════════════════════════════════════ */
+    .br-card { background: #161b22; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem 1rem; }
+    .br-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.35rem; }
+    .br-val { font-size: 1.4rem; font-weight: 700; font-family: var(--font-mono); }
+    .br-sub { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.1rem; }
+
+    /* ════════════════════════════════════════════
+       CHAT
+    ════════════════════════════════════════════ */
+    .chat-box { height: 300px; overflow-y: auto; background: #0d1117; border: 1px solid var(--border-color); border-radius: 10px; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; }
+    .chat-bubble { max-width: 80%; padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.84rem; line-height: 1.5; }
+    .chat-bubble.user { align-self: flex-end; background: linear-gradient(135deg, var(--cyan), #0d9488); color: #fff; border-bottom-right-radius: 3px; }
+    .chat-bubble.ai   { align-self: flex-start; background: #1c2333; border: 1px solid var(--border-color); color: var(--text-main); border-bottom-left-radius: 3px; }
+    .chip-container { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .chip { background: #161b22; border: 1px solid var(--border-color); color: var(--cyan); font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 14px; cursor: pointer; transition: all 0.15s; }
     .chip:hover { background: #1f293d; border-color: var(--cyan); }
 
-    /* TIMELINE */
-    .timeline-bar {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      overflow-x: auto;
-      padding: 1rem 0;
-    }
-    .timeline-node {
-      background: #161b22;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 0.6rem 1rem;
-      min-width: 180px;
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
+    /* ════════════════════════════════════════════
+       TIMELINE
+    ════════════════════════════════════════════ */
+    .timeline-bar { display: flex; align-items: center; gap: 0.5rem; overflow-x: auto; padding: 1rem 0; }
+    .timeline-node { background: #161b22; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem 1rem; min-width: 170px; font-family: var(--font-mono); font-size: 0.73rem; cursor: pointer; transition: all 0.2s; user-select: none; color: var(--text-muted); }
+    .timeline-node:hover { border-color: var(--cyan); color: var(--cyan); transform: translateY(-2px); }
+    .timeline-node.active { border-color: var(--cyan) !important; background: linear-gradient(160deg, var(--cyan-light), #161b22) !important; color: var(--cyan) !important; box-shadow: 0 0 14px var(--cyan-glow); }
+
+    /* ════════════════════════════════════════════
+       FOOTER
+    ════════════════════════════════════════════ */
+    footer { padding: 1.25rem 2rem; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); }
+    footer span { color: var(--cyan); }
+
+    /* ════════════════════════════════════════════
+       INTERACTIVE RADIAL SOC HUB (THE ROUND SELECTOR)
+    ════════════════════════════════════════════ */
+    .radial-soc-hub {
+      position: relative;
+      width: 100%;
+      max-width: 960px;
+      height: 440px;
+      margin: 1.2rem auto 0.5rem;
       user-select: none;
     }
-    .timeline-node:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--cyan);
-      transform: translateY(-2px);
+    .radial-soc-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
     }
-    .timeline-node.active {
-      border-color: var(--cyan) !important;
-      background: linear-gradient(180deg, rgba(14, 165, 233, 0.2), #161b22) !important;
-      box-shadow: 0 0 15px var(--cyan-glow);
+    
+    /* Spoke lines */
+    .spoke-line {
+      stroke: rgba(14, 165, 233, 0.22);
+      stroke-width: 1.2;
+      transition: stroke 0.3s ease, stroke-width 0.3s ease;
+    }
+    .spoke-line.active-spoke {
+      stroke: var(--cyan);
+      stroke-width: 2.5;
+      stroke-dasharray: 6 3;
+      animation: laserPulse 0.9s linear infinite;
+      filter: drop-shadow(0 0 8px rgba(14, 165, 233, 0.9));
+    }
+    @keyframes laserPulse {
+      from { stroke-dashoffset: 24; }
+      to { stroke-dashoffset: 0; }
     }
 
-    footer {
-      padding: 1rem 2rem;
-      border-top: 1px solid var(--border-color);
-      text-align: center;
-      font-size: 0.75rem;
-      color: var(--text-muted);
+    /* Radar sweep */
+    .hub-radar-sweep {
+      transform-origin: 480px 220px;
+      animation: sweepRotate 8s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes sweepRotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Central Hub Badge */
+    .hub-center-badge {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #101622 40%, #090c10 100%);
+      border: 1px solid rgba(14, 165, 233, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 25px rgba(14, 165, 233, 0.25), inset 0 0 15px rgba(14, 165, 233, 0.15);
+      z-index: 5;
+      cursor: default;
+    }
+    .hub-center-core {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--cyan), #0d9488);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.85rem;
+      box-shadow: 0 0 12px var(--cyan-glow);
+      margin-bottom: 4px;
+    }
+    .hub-center-title {
       font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--cyan);
+    }
+    .hub-center-status {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    /* Interactive Node Stations */
+    .hub-station {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.65rem 1.1rem;
+      border-radius: 20px;
+      background: rgba(13, 17, 23, 0.9);
+      border: 1px solid rgba(33, 40, 59, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 6;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    .hub-station:hover {
+      border-color: rgba(14, 165, 233, 0.6);
+      background: rgba(19, 23, 34, 0.95);
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(14, 165, 233, 0.25);
+    }
+    .hub-station.active {
+      border-color: var(--cyan);
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(13, 17, 23, 0.96));
+      box-shadow: 0 0 30px rgba(14, 165, 233, 0.4), inset 0 0 12px rgba(14, 165, 233, 0.25);
+      transform: scale(1.05);
+    }
+
+    .station-icon-wrap {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(14, 165, 233, 0.1);
+      border: 1px solid rgba(14, 165, 233, 0.25);
+      display: grid;
+      place-items: center;
+      color: var(--cyan);
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .hub-station.active .station-icon-wrap {
+      background: var(--cyan);
+      color: #090c10;
+      box-shadow: 0 0 14px var(--cyan);
+    }
+
+    .station-meta {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+    .station-badge {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .hub-station.active .station-badge {
+      color: var(--cyan);
+    }
+    .station-name {
+      font-family: var(--font-sans);
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+    .hub-station.active .station-name {
+      color: #fff;
+      text-shadow: 0 0 10px rgba(14, 165, 233, 0.8);
+    }
+    .station-desc {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+    .hub-station.active .station-desc {
+      color: rgba(240, 246, 252, 0.9);
+    }
+
+    .station-ping-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .hub-station.active .station-ping-dot {
+      opacity: 1;
+      animation: dotPulse 1.4s infinite;
+    }
+    @keyframes dotPulse {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.6); opacity: 1; box-shadow: 0 0 14px var(--cyan); }
+    }
+
+    /* Subsystem Active Banner */
+    .hub-current-view-strip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      margin: 0.25rem auto 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--cyan);
+      background: rgba(14, 165, 233, 0.08);
+      border: 1px solid rgba(14, 165, 233, 0.25);
+      border-radius: 20px;
+      padding: 0.38rem 1.2rem;
+      width: fit-content;
+      letter-spacing: 0.06em;
     }
   </style>
 </head>
 <body>
 
   <!-- ============================================================
-       SECTION 1: LANDING PAGE & ADMIN LOGIN PORTAL
+       LANDING PAGE
   ============================================================ -->
   <div id="landing-page" class="landing-wrapper">
-    <div class="landing-hero" style="margin-bottom:1.5rem">
-      <span class="landing-badge">RESCUECLOUD ENTERPRISE PLATFORM</span>
-      <h1 class="landing-title">Zero-RPO EHR Security Operations & Autonomous Disaster Recovery Engine</h1>
+
+    <div style="text-align:center;margin-bottom:2rem;position:relative;z-index:2">
+      <div class="landing-eyebrow" style="margin-bottom:1rem">RescueCloud Enterprise Platform</div>
+      <h1 style="font-size:1.6rem;font-weight:800;letter-spacing:-0.03em;color:var(--text-main)">SOC Security Operations Portal</h1>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.4rem;font-family:var(--font-mono)">Authenticate to access the EHR Disaster Recovery Dashboard</p>
     </div>
 
-    <!-- ADMIN LOGIN CARD (FIRST / CENTER) -->
-    <div class="login-card" style="margin-bottom:3rem">
-      <div class="login-header">
-        <div class="brand-logo" style="margin:0 auto 0.75rem;width:44px;height:44px;font-size:1.4rem">RC</div>
-        <h2>SOC Admin Login</h2>
-        <p>Security Operations Portal Access</p>
+    <!-- LOGIN CARD -->
+    <div class="login-card">
+      <div class="login-logo">RC</div>
+      <div class="login-head">
+        <h2>SOC Admin Portal</h2>
+        <p>Security Operations Access</p>
       </div>
-
       <form onsubmit="handleAdminLogin(event)">
         <div style="margin-bottom:1rem">
-          <label style="font-size:0.75rem;color:var(--text-muted);display:block;margin-bottom:0.3rem">Admin ID / Email</label>
+          <label>Admin ID / Email</label>
           <input type="text" class="input-field" id="login-id" value="admin@rescuecloud.io" required>
         </div>
-
         <div style="margin-bottom:1.25rem">
-          <label style="font-size:0.75rem;color:var(--text-muted);display:block;margin-bottom:0.3rem">Admin Password</label>
+          <label>Admin Password</label>
           <input type="password" class="input-field" id="login-pass" value="RescueCloud2026!" required>
         </div>
-
-
         <div id="login-error-msg" style="display:none;color:var(--red);font-size:0.78rem;font-family:var(--font-mono);margin-bottom:1rem;text-align:center">
           Invalid Admin Credentials
         </div>
-
-        <button type="submit" class="btn btn-cyan" style="width:100%;padding:0.75rem;font-size:0.9rem">
-          Authenticate & Open SOC Portal
+        <button type="submit" class="btn btn-cyan" style="width:100%;padding:0.75rem;font-size:0.88rem">
+          Authenticate &amp; Open SOC Portal
         </button>
       </form>
     </div>
 
-    <!-- FEATURE HIGHLIGHTS (BELOW LOGIN) -->
-    <div class="landing-features-grid">
-      <div class="feature-card">
-        <div class="feature-title">38ms Containment</div>
-        <div class="feature-desc">Autonomous Air-Gap Circuit Breaker freezes write transactions and revokes compromised IP access instantantly.</div>
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-label">38ms Containment</div>
+        <div class="feat-desc">Autonomous Air-Gap Circuit Breaker freezes write transactions and revokes compromised IP access instantly.</div>
       </div>
-      <div class="feature-card">
-        <div class="feature-title">ML Telemetry</div>
-        <div class="feature-desc">In-process Isolation Forest decision engine evaluates requests with ultra-low ~2ms scoring latency.</div>
+      <div class="feat-card">
+        <div class="feat-label">ML Telemetry</div>
+        <div class="feat-desc">In-process Isolation Forest decision engine evaluates requests with ultra-low ~2ms scoring latency.</div>
       </div>
-      <div class="feature-card">
-        <div class="feature-title">0.0s RPO PITR</div>
-        <div class="feature-desc">Continuous PostgreSQL WAL streaming with SHA-256 integrity ledger for zero data loss restoration.</div>
+      <div class="feat-card">
+        <div class="feat-label">0.0s RPO PITR</div>
+        <div class="feat-desc">Continuous PostgreSQL WAL streaming with SHA-256 integrity ledger for zero data loss restoration.</div>
       </div>
-      <div class="feature-card">
-        <div class="feature-title">Vector RAG AI</div>
-        <div class="feature-desc">Ollama Qwen2.5 knowledge base assistant for instantaneous natural language SOC incident query resolution.</div>
+      <div class="feat-card">
+        <div class="feat-label">Vector RAG AI</div>
+        <div class="feat-desc">Ollama Qwen2.5 knowledge base assistant for instantaneous natural language SOC incident query resolution.</div>
       </div>
     </div>
   </div>
 
 
-
-
   <!-- ============================================================
-       SECTION 2: SOC SECURITY OPERATIONS DASHBOARD
+       SOC DASHBOARD
   ============================================================ -->
   <div id="soc-dashboard" style="display:none">
-    <!-- HEADER & HEALTH STRIP -->
+
     <header>
       <div class="brand">
         <div class="brand-logo">RC</div>
-        <div class="brand-text">
-          <h1>RescueCloud SOC</h1>
-          <p>EHR Disaster Recovery & Telemetry Engine</p>
+        <div>
+          <div class="brand-name">RescueCloud SOC</div>
+          <div class="brand-tag">EHR Disaster Recovery &amp; Telemetry Engine</div>
         </div>
       </div>
 
-      <!-- PERSISTENT SYSTEM HEALTH STRIP -->
       <div class="health-strip">
-        <div class="health-item">
-          <div class="status-dot ok" id="dot-db"></div>
-          <span>Postgres</span>
-        </div>
-        <div class="health-item">
-          <div class="status-dot ok" id="dot-ml"></div>
-          <span>Isolation Forest</span>
-        </div>
-        <div class="health-item">
-          <div class="status-dot ok" id="dot-wal"></div>
-          <span>WAL PITR</span>
-        </div>
-        <div class="health-item">
-          <div class="status-dot ok" id="dot-rag"></div>
-          <span>RAG Vector</span>
-        </div>
+        <div class="health-item"><div class="status-dot ok" id="dot-db"></div><span>Postgres</span></div>
+        <div class="health-item"><div class="status-dot ok" id="dot-ml"></div><span>Isolation Forest</span></div>
+        <div class="health-item"><div class="status-dot ok" id="dot-wal"></div><span>WAL PITR</span></div>
+        <div class="health-item"><div class="status-dot ok" id="dot-rag"></div><span>RAG Vector</span></div>
       </div>
 
-      <div class="header-actions">
-        <div class="clock-badge" id="live-clock">--:--:-- IST</div>
-        <button class="btn-emergency" onclick="triggerEmergencySimulation()">
-          EMERGENCY LOCKDOWN
-        </button>
-        <button class="btn-logout" onclick="handleLogout()">
-          Lock SOC
-        </button>
+      <div class="header-right">
+        <div class="clock" id="live-clock">--:--:-- IST</div>
+        <button class="btn-emergency" onclick="triggerEmergencySimulation()">&#9889; Emergency Lockdown</button>
+        <button class="btn-logout" onclick="handleLogout()">Lock SOC</button>
       </div>
     </header>
 
     <main>
-      <!-- PERSISTENT AIR-GAP CIRCUIT BREAKER BANNER -->
-      <div class="circuit-banner" id="circuit-banner" style="display:none">
-        <div>
-          <div class="banner-title">
-            AIR-GAP CIRCUIT BREAKER ACTIVE — THREAT CONTAINED IN 38ms
+
+      <!-- ── DASHBOARD HERO ── -->
+      <div style="text-align:center;padding:2.5rem 0 2rem;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(14,165,233,0.1) 0%,transparent 70%);">
+        <div class="landing-eyebrow" style="margin-bottom:1.2rem">RescueCloud Enterprise Platform</div>
+        <h1 class="landing-title">Zero-RPO EHR Security Operations<br>&amp; <em>Autonomous Recovery.</em></h1>
+        <p class="landing-sub" style="margin:0.75rem auto 0">Enterprise-grade SOC portal with real-time anomaly telemetry, air-gap containment, and cryptographic backup recovery.</p>
+
+        <!-- ── INTERACTIVE RADIAL SOC HUB (THE ROUND TAB SELECTOR) ── -->
+        <div class="radial-soc-hub" id="radial-hub">
+          <!-- SVG Vector Network & Radar Canvas -->
+          <svg class="radial-soc-bg" viewBox="0 0 960 440" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="hubCoreGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.35"/>
+                <stop offset="60%" stop-color="#0ea5e9" stop-opacity="0.08"/>
+                <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0"/>
+              </radialGradient>
+              <filter id="laserGlow">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+
+            <!-- Orbital rings -->
+            <circle cx="480" cy="220" r="75" fill="none" stroke="rgba(14,165,233,0.14)" stroke-width="1" stroke-dasharray="4 4"/>
+            <circle cx="480" cy="220" r="140" fill="none" stroke="rgba(14,165,233,0.09)" stroke-width="1" stroke-dasharray="6 6"/>
+            <circle cx="480" cy="220" r="205" fill="none" stroke="rgba(14,165,233,0.06)" stroke-width="1"/>
+            <circle cx="480" cy="220" r="55" fill="url(#hubCoreGlow)"/>
+
+            <!-- Radar crosshairs -->
+            <line x1="480" y1="15" x2="480" y2="425" stroke="rgba(14,165,233,0.06)" stroke-width="1" stroke-dasharray="3 3"/>
+            <line x1="20" y1="220" x2="940" y2="220" stroke="rgba(14,165,233,0.06)" stroke-width="1" stroke-dasharray="3 3"/>
+
+            <!-- Rotating Radar Sweep Beam -->
+            <g class="hub-radar-sweep">
+              <path d="M 480 220 L 480 15 A 205 205 0 0 1 625 75 Z" fill="url(#hubCoreGlow)" opacity="0.45"/>
+            </g>
+
+            <!-- Spoke Lines to the 5 Subsystems -->
+            <line class="spoke-line" id="spoke-anomaly" x1="480" y1="165" x2="480" y2="70" filter="url(#laserGlow)"/>
+            <line class="spoke-line" id="spoke-containment" x1="525" y1="195" x2="740" y2="125" filter="url(#laserGlow)"/>
+            <line class="spoke-line" id="spoke-backups" x1="515" y1="255" x2="680" y2="360" filter="url(#laserGlow)"/>
+            <line class="spoke-line" id="spoke-assistant" x1="445" y1="255" x2="280" y2="360" filter="url(#laserGlow)"/>
+            <line class="spoke-line active-spoke" id="spoke-patients" x1="435" y1="195" x2="220" y2="125" filter="url(#laserGlow)"/>
+          </svg>
+
+          <!-- Central SOC Core Hub -->
+          <div class="hub-center-badge">
+            <div class="hub-center-core">RC</div>
+            <div class="hub-center-title">RESCUECLOUD</div>
+            <div class="hub-center-status">ACTIVE SOC</div>
           </div>
-          <div class="banner-sub" id="banner-sub">
-            Attacker IP quarantined. Database set to Read-Only Mode. WAL log checkpoint frozen via pg_switch_wal().
-          </div>
+
+          <!-- 1. PATIENTS STATION (Top Left) -->
+          <button class="hub-station active" id="tile-patients" onclick="switchTab('patients')" style="top:85px;left:25px;" title="Select Patient Records">
+            <div class="station-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="station-meta">
+              <span class="station-badge">EHR DATABASE</span>
+              <span class="station-name">PATIENTS</span>
+              <span class="station-desc">1,108 Clinical Records</span>
+            </div>
+            <div class="station-ping-dot"></div>
+          </button>
+
+          <!-- 2. ANOMALY STATION (Top Center) -->
+          <button class="hub-station" id="tile-anomaly" onclick="switchTab('anomaly')" style="top:15px;left:50%;transform:translateX(-50%);" title="Select Anomaly Telemetry">
+            <div class="station-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <div class="station-meta">
+              <span class="station-badge">ML ENGINE</span>
+              <span class="station-name">ANOMALY</span>
+              <span class="station-desc">Isolation Forest ~2ms</span>
+            </div>
+            <div class="station-ping-dot"></div>
+          </button>
+
+          <!-- 3. CONTAINMENT STATION (Top Right) -->
+          <button class="hub-station" id="tile-containment" onclick="switchTab('containment')" style="top:85px;right:25px;" title="Select Air-Gap Containment">
+            <div class="station-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="station-meta">
+              <span class="station-badge">AIR-GAP DEFENSE</span>
+              <span class="station-name">CONTAINMENT</span>
+              <span class="station-desc">38ms Circuit Breaker</span>
+            </div>
+            <div class="station-ping-dot"></div>
+          </button>
+
+          <!-- 4. BACKUPS STATION (Bottom Right) -->
+          <button class="hub-station" id="tile-backups" onclick="switchTab('backups')" style="bottom:30px;right:80px;" title="Select Backups &amp; PITR">
+            <div class="station-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            </div>
+            <div class="station-meta">
+              <span class="station-badge">WAL ARCHIVE</span>
+              <span class="station-name">BACKUPS</span>
+              <span class="station-desc">0-RPO PITR &amp; SHA-256</span>
+            </div>
+            <div class="station-ping-dot"></div>
+          </button>
+
+          <!-- 5. ASSISTANT STATION (Bottom Left) -->
+          <button class="hub-station" id="tile-assistant" onclick="switchTab('assistant')" style="bottom:30px;left:80px;" title="Select AI Assistant">
+            <div class="station-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div class="station-meta">
+              <span class="station-badge">RAG VECTOR</span>
+              <span class="station-name">ASSISTANT</span>
+              <span class="station-desc">Ollama Qwen2.5 Copilot</span>
+            </div>
+            <div class="station-ping-dot"></div>
+          </button>
         </div>
-        <button class="btn" style="background:#d32f2f;color:#fff;border:none" onclick="resetCircuitBreaker()">
-          Reset Circuit Breaker
-        </button>
+
+        <!-- Current Active View Indicator -->
+        <div class="hub-current-view-strip">
+          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);"></span>
+          <span>SELECTED SUBSYSTEM:</span>
+          <strong id="hub-active-label" style="color:#fff;">EHR PATIENTS — CLINICAL RECORDS</strong>
+        </div>
       </div>
 
-      <!-- SUMMARY METRICS GRID -->
+      <div class="circuit-banner" id="circuit-banner">
+        <div>
+          <div class="banner-title">&#9888; AIR-GAP CIRCUIT BREAKER ACTIVE &mdash; THREAT CONTAINED IN 38ms</div>
+          <div class="banner-sub" id="banner-sub">Attacker IP quarantined. Database set to Read-Only Mode. WAL log checkpoint frozen via pg_switch_wal().</div>
+        </div>
+        <button class="btn" style="background:#d32f2f;color:#fff;border:none;white-space:nowrap" onclick="resetCircuitBreaker()">Reset Circuit Breaker</button>
+      </div>
+
       <section class="metrics-grid">
         <div class="metric-card">
-          <div class="metric-header">
-            <span class="metric-label">Recovery Point (RPO)</span>
-            <span class="metric-badge">0-SEC PITR</span>
-          </div>
+          <div class="metric-label">Recovery Point (RPO) <span class="metric-badge cyan-b">0-SEC PITR</span></div>
           <div class="metric-val">0.0 s</div>
           <div class="metric-sub">Continuous WAL Archiving Active</div>
         </div>
-
         <div class="metric-card">
-          <div class="metric-header">
-            <span class="metric-label">Recovery Time (RTO)</span>
-            <span class="metric-badge">SLA COMPLIANT</span>
-          </div>
-          <div class="metric-val" style="color:var(--green)">15.4 s</div>
+          <div class="metric-label">Recovery Time (RTO) <span class="metric-badge">SLA COMPLIANT</span></div>
+          <div class="metric-val green">15.4 s</div>
           <div class="metric-sub">Full System PITR Rollback</div>
         </div>
-
         <div class="metric-card">
-          <div class="metric-header">
-            <span class="metric-label">EHR Patients</span>
-            <span class="metric-badge">VERIFIED</span>
-          </div>
+          <div class="metric-label">EHR Patients <span class="metric-badge">VERIFIED</span></div>
           <div class="metric-val" id="patients-count">1,108</div>
           <div class="metric-sub">Synthea EHR Clinical Dataset</div>
         </div>
-
         <div class="metric-card">
-          <div class="metric-header">
-            <span class="metric-label">Integrity Ledger</span>
-            <span class="metric-badge">SHA-256</span>
-          </div>
-          <div class="metric-val" style="font-size:1.2rem;color:var(--cyan)">backup_ledger</div>
+          <div class="metric-label">Integrity Ledger <span class="metric-badge cyan-b">SHA-256</span></div>
+          <div class="metric-val small">backup_ledger</div>
           <div class="metric-sub">Cryptographic Checksum Receipts</div>
         </div>
       </section>
 
-      <!-- NAV TILES (WITH CLEAN SVG VECTOR ICONS) -->
-      <nav class="nav-tiles-grid">
-        <div class="nav-tile active" onclick="switchTab('patients')" id="tile-patients">
-          <div class="nav-tile-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-          </div>
-          <div class="nav-tile-title">Patients</div>
-        </div>
-
-        <div class="nav-tile" onclick="switchTab('anomaly')" id="tile-anomaly">
-          <div class="nav-tile-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-          </div>
-          <div class="nav-tile-title">Anomaly</div>
-        </div>
-
-        <div class="nav-tile" onclick="switchTab('containment')" id="tile-containment">
-          <div class="nav-tile-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-          </div>
-          <div class="nav-tile-title">Containment</div>
-        </div>
-
-        <div class="nav-tile" onclick="switchTab('backups')" id="tile-backups">
-          <div class="nav-tile-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
-          </div>
-          <div class="nav-tile-title">Backups</div>
-        </div>
-
-        <div class="nav-tile" onclick="switchTab('assistant')" id="tile-assistant">
-          <div class="nav-tile-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-          </div>
-          <div class="nav-tile-title">Assistant</div>
-        </div>
-      </nav>
-
-
-      <!-- PANEL CONTENT CONTAINER -->
       <div class="panel-container">
 
-        <!-- ============================================================
-             PANEL 1: PATIENTS
-        ============================================================ -->
+        <!-- PANEL 1: PATIENTS -->
         <section class="panel-view active" id="view-patients">
           <div class="panel-head">
             <div>
               <div class="panel-title">Patient Health Records</div>
               <div class="panel-subtitle">Synthea EHR Clinical Dataset</div>
             </div>
-            <div style="width:300px">
-              <input type="text" class="input-field" id="patient-search" placeholder="Search by MRN ID, Name, or Diagnosis…">
+            <div style="width:280px">
+              <input type="text" class="input-field" id="patient-search" placeholder="Search by MRN ID, Name, or Diagnosis&hellip;">
             </div>
           </div>
-
           <table class="soc-table">
             <thead>
-              <tr>
-                <th>MRN ID</th>
-                <th>Patient Name</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th>Diagnosis</th>
-              </tr>
+              <tr><th>MRN ID</th><th>Patient Name</th><th>Age</th><th>Gender</th><th>Diagnosis</th></tr>
             </thead>
             <tbody id="patient-table-body">
-              <tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Loading patient records…</td></tr>
+              <tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Loading patient records&hellip;</td></tr>
             </tbody>
           </table>
         </section>
 
-        <!-- ============================================================
-             PANEL 2: ANOMALY TELEMETRY & SIMULATION
-        ============================================================ -->
+        <!-- PANEL 2: ANOMALY -->
         <section class="panel-view" id="view-anomaly">
           <div class="panel-head">
             <div>
@@ -948,36 +1044,27 @@
             </div>
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:1.5rem">
-            <!-- GAUGE & RADAR SCANNER CARD -->
+          <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:1.5rem">
             <div class="gauge-container">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.2rem">
-                <span style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono)">
-                  Isolation Forest Score
-                </span>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem">
+                <span style="font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono)">Isolation Forest Score</span>
                 <span class="status-badge ok" style="display:flex;align-items:center;gap:4px">
                   <span class="radar-ping"></span> ML RADAR SWEEP
                 </span>
               </div>
-
-              <!-- ROTATING RADAR SWEEP ANIMATION -->
               <div class="radar-box">
                 <div class="radar-grid"></div>
                 <div class="radar-sweep" id="radar-sweep"></div>
               </div>
-
               <div class="gauge-score green" id="gauge-val">+0.19</div>
               <div class="gauge-bar-bg">
                 <div class="gauge-bar-fill" id="gauge-fill" style="width:20%;background:var(--green)"></div>
               </div>
-              <div id="verdict-box" style="font-family:var(--font-mono);font-size:0.8rem;color:var(--green)">
-                Baseline Telemetry Normal
-              </div>
+              <div id="verdict-box" style="font-family:var(--font-mono);font-size:0.78rem;color:var(--green)">Baseline Telemetry Normal</div>
             </div>
 
-            <!-- INPUT FORM -->
             <form id="anomaly-form" onsubmit="runManualPredict(event)">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;font-size:0.8rem">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.85rem">
                 <div>
                   <label>User Role</label>
                   <select class="select-field" id="f-role">
@@ -1016,135 +1103,98 @@
                   </select>
                 </div>
               </div>
-              <button type="submit" class="btn btn-cyan" style="width:100%;margin-top:1rem">
+              <button type="submit" class="btn btn-cyan" style="width:100%;margin-top:1.1rem;padding:0.65rem">
                 Run Isolation Forest Security Analysis
               </button>
             </form>
           </div>
 
-          <!-- LIVE TRAFFIC FEED TABLE -->
-          <div style="margin-top:2rem;border:1px solid var(--border-color);border-radius:8px;overflow:hidden">
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem;background:#0d1117">
-              <span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cyan);font-weight:700">
-                LIVE TRAFFIC FEED
-              </span>
-              <span id="live-count-str" style="font-size:0.7rem;color:var(--text-muted);font-family:var(--font-mono)">
-                Polling /anomaly/live…
-              </span>
+          <div style="margin-top:1.75rem;border:1px solid var(--border-color);border-radius:10px;overflow:hidden">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem;background:#0d1117;border-bottom:1px solid var(--border-color)">
+              <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--cyan);font-weight:700">LIVE TRAFFIC FEED</span>
+              <span id="live-count-str" style="font-size:0.68rem;color:var(--text-muted);font-family:var(--font-mono)">Polling /anomaly/live&hellip;</span>
             </div>
             <table class="soc-table">
               <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Verdict</th>
-                  <th>Role</th>
-                  <th>Action</th>
-                  <th>RPM</th>
-                  <th>Records</th>
-                  <th>Score</th>
-                </tr>
+                <tr><th>Time</th><th>Verdict</th><th>Role</th><th>Action</th><th>RPM</th><th>Records</th><th>Score</th></tr>
               </thead>
               <tbody id="live-feed-body">
-                <tr><td colspan="7" style="text-align:center;color:var(--text-muted)">Waiting for live traffic…</td></tr>
+                <tr><td colspan="7" style="text-align:center;color:var(--text-muted)">Waiting for live traffic&hellip;</td></tr>
               </tbody>
             </table>
           </div>
         </section>
 
-        <!-- ============================================================
-             PANEL 3: CONTAINMENT & BLAST RADIUS & GRAPH
-        ============================================================ -->
+        <!-- PANEL 3: CONTAINMENT -->
         <section class="panel-view" id="view-containment">
           <div class="panel-head">
             <div>
-              <div class="panel-title">Air-Gap Circuit Breaker & Containment</div>
-              <div class="panel-subtitle">Autonomous Containment & Blast Radius Audit Engine</div>
+              <div class="panel-title">Air-Gap Circuit Breaker &amp; Containment</div>
+              <div class="panel-subtitle">Autonomous Containment &amp; Blast Radius Audit Engine</div>
             </div>
-            <button class="btn" style="background:#d32f2f;color:#fff;border:none" onclick="resetCircuitBreaker()">
-              Reset Circuit Breaker
-            </button>
+            <button class="btn" style="background:#d32f2f;color:#fff;border:none" onclick="resetCircuitBreaker()">Reset Circuit Breaker</button>
           </div>
 
-          <!-- INNOVATION #2: BLAST RADIUS DIFFERENTIAL AUDIT CARD -->
-          <div style="background:#0d1117;border:1px solid var(--border-accent);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;border-bottom:1px solid var(--border-color);padding-bottom:0.75rem">
+          <div class="sub-card" style="margin-bottom:1.5rem;border-color:var(--border-accent)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
               <div>
-                <span style="font-family:var(--font-mono);font-weight:700;color:var(--cyan);font-size:0.9rem">
-                  INNOVATION #2 — AUTOMATED BLAST RADIUS DIFFERENTIAL AUDIT
-                </span>
-                <div style="font-size:0.75rem;color:var(--text-muted)">
-                  Pre-Breach vs Post-Breach Data Footprint Analysis
-                </div>
+                <div class="sub-card-title">INNOVATION #2 &mdash; AUTOMATED BLAST RADIUS DIFFERENTIAL AUDIT</div>
+                <div style="font-size:0.72rem;color:var(--text-muted)">Pre-Breach vs Post-Breach Data Footprint Analysis</div>
               </div>
               <span class="status-badge bad" id="br-status-badge">INCIDENT TAINT DETECTED</span>
             </div>
-
-            <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:1rem;margin-bottom:1rem">
-              <div style="background:#161b22;padding:0.75rem;border-radius:8px;border:1px solid var(--border-color)">
-                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase">Tainted Records</div>
-                <div style="font-size:1.4rem;font-weight:700;color:var(--red);font-family:var(--font-mono)" id="br-records">4,219</div>
-                <div style="font-size:0.68rem;color:var(--text-muted)">Compromised Rows</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem">
+              <div class="br-card">
+                <div class="br-label">Tainted Records</div>
+                <div class="br-val" style="color:var(--red)" id="br-records">4,219</div>
+                <div class="br-sub">Compromised Rows</div>
               </div>
-              <div style="background:#161b22;padding:0.75rem;border-radius:8px;border:1px solid var(--border-color)">
-                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase">Exfiltrated Data</div>
-                <div style="font-size:1.4rem;font-weight:700;color:var(--amber);font-family:var(--font-mono)" id="br-mb">757.9 MB</div>
-                <div style="font-size:0.68rem;color:var(--text-muted)">Data Footprint</div>
+              <div class="br-card">
+                <div class="br-label">Exfiltrated Data</div>
+                <div class="br-val" style="color:var(--amber)" id="br-mb">757.9 MB</div>
+                <div class="br-sub">Data Footprint</div>
               </div>
-              <div style="background:#161b22;padding:0.75rem;border-radius:8px;border:1px solid var(--border-color)">
-                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase">Attacker Access Window</div>
-                <div style="font-size:1.4rem;font-weight:700;color:var(--green);font-family:var(--font-mono)" id="br-duration">1.2 s</div>
-                <div style="font-size:0.68rem;color:var(--text-muted)">Reaction Speed: 38ms</div>
+              <div class="br-card">
+                <div class="br-label">Attacker Access Window</div>
+                <div class="br-val" style="color:var(--green)" id="br-duration">1.2 s</div>
+                <div class="br-sub">Reaction Speed: 38ms</div>
               </div>
-              <div style="background:#161b22;padding:0.75rem;border-radius:8px;border:1px solid var(--border-color)">
-                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase">Cryptographic SHA-256</div>
-                <div style="font-size:0.75rem;font-weight:700;color:var(--cyan);font-family:var(--font-mono);word-break:break-all" id="br-sha">e3b0c442...855</div>
-                <div style="font-size:0.68rem;color:var(--text-muted)">Write Checksum Receipt</div>
+              <div class="br-card">
+                <div class="br-label">Cryptographic SHA-256</div>
+                <div style="font-size:0.72rem;font-weight:700;color:var(--cyan);font-family:var(--font-mono);word-break:break-all;margin:0.25rem 0" id="br-sha">e3b0c442...855</div>
+                <div class="br-sub">Write Checksum Receipt</div>
               </div>
             </div>
-
-            <!-- TAINTED TABLES & DIFFERENTIAL LEDGER -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-size:0.8rem">
               <div>
-                <span style="font-family:var(--font-mono);color:var(--text-muted);display:block;margin-bottom:0.4rem">Compromised Database Entities</span>
-                <div style="background:#161b22;padding:0.6rem;border-radius:6px;font-family:var(--font-mono);color:var(--red)" id="br-tables">
-                  public.patients, public.medical_records, public.audit_logs
-                </div>
+                <div style="font-family:var(--font-mono);color:var(--text-muted);font-size:0.7rem;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.06em">Compromised Database Entities</div>
+                <div style="background:#161b22;padding:0.6rem;border-radius:6px;font-family:var(--font-mono);color:var(--red);font-size:0.78rem" id="br-tables">public.patients, public.medical_records, public.audit_logs</div>
               </div>
               <div>
-                <span style="font-family:var(--font-mono);color:var(--text-muted);display:block;margin-bottom:0.4rem">Target PITR Recovery Timestamp</span>
-                <div style="background:#161b22;padding:0.6rem;border-radius:6px;font-family:var(--font-mono);color:var(--green)" id="br-pitr-target">
-                  2026-08-05 02:29:45.000 (0-RPO Pre-Incident State)
-                </div>
+                <div style="font-family:var(--font-mono);color:var(--text-muted);font-size:0.7rem;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.06em">Target PITR Recovery Timestamp</div>
+                <div style="background:#161b22;padding:0.6rem;border-radius:6px;font-family:var(--font-mono);color:var(--green);font-size:0.78rem" id="br-pitr-target">2026-08-05 02:29:45.000 (0-RPO Pre-Incident State)</div>
               </div>
             </div>
           </div>
 
-          <!-- ANOMALY VS RECOVERY RATE GRAPH -->
-          <div style="background:#0d1117;border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem">
-            <h3 style="font-size:0.9rem;margin-bottom:0.75rem;color:var(--cyan);font-family:var(--font-mono)">
-              ANOMALY DETECTION VS. ZERO-RPO PITR RECOVERY RATE
-            </h3>
-            <canvas id="anomalyRecoveryChart" style="max-height:220px;width:100%"></canvas>
+          <div class="sub-card" style="margin-bottom:1.5rem">
+            <div class="sub-card-title">ANOMALY DETECTION VS. ZERO-RPO PITR RECOVERY RATE</div>
+            <canvas id="anomalyRecoveryChart" style="max-height:200px;width:100%"></canvas>
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
-            <div style="background:#0d1117;border:1px solid var(--border-color);border-radius:10px;padding:1.25rem">
-              <h3 style="font-size:0.9rem;margin-bottom:0.75rem;color:var(--cyan);font-family:var(--font-mono)">
-                Containment Status
-              </h3>
-              <div style="font-size:0.85rem;line-height:1.8">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+            <div class="sub-card">
+              <div class="sub-card-title">Containment Status</div>
+              <div style="font-size:0.84rem;line-height:2">
                 <div>State: <strong id="cb-status-str" style="color:var(--green)">IDLE / STANDBY</strong></div>
                 <div>Quarantined IPs: <span id="cb-ips-str" style="font-family:var(--font-mono)">None</span></div>
                 <div>Reaction Time: <span id="cb-time-str" style="font-family:var(--font-mono)">38ms</span></div>
                 <div>WAL Checkpoint: <span id="cb-wal-str" style="font-family:var(--font-mono)">pg_switch_wal() Ready</span></div>
               </div>
             </div>
-
-            <div style="background:#0d1117;border:1px solid var(--border-color);border-radius:10px;padding:1.25rem">
-              <h3 style="font-size:0.9rem;margin-bottom:0.75rem;color:var(--cyan);font-family:var(--font-mono)">
-                Active Security Policies
-              </h3>
-              <ul style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;padding-left:1.2rem">
+            <div class="sub-card">
+              <div class="sub-card-title">Active Security Policies</div>
+              <ul style="font-size:0.8rem;color:var(--text-muted);line-height:2;padding-left:1.2rem">
                 <li>Automatic IP Revocation on N consecutive anomalies</li>
                 <li>Read-Only Emergency Lock on database writes</li>
                 <li>Instant WAL log switch (pg_switch_wal()) to freeze clean state</li>
@@ -1153,96 +1203,69 @@
           </div>
         </section>
 
-        <!-- ============================================================
-             PANEL 4: BACKUPS & PITR
-        ============================================================ -->
+        <!-- PANEL 4: BACKUPS -->
         <section class="panel-view" id="view-backups">
           <div class="panel-head">
             <div>
-              <div class="panel-title">Point-In-Time Recovery (PITR) & Backups</div>
-              <div class="panel-subtitle">PostgreSQL WAL Streaming & SHA-256 Ledger</div>
+              <div class="panel-title">Point-In-Time Recovery (PITR) &amp; Backups</div>
+              <div class="panel-subtitle">PostgreSQL WAL Streaming &amp; SHA-256 Ledger</div>
             </div>
-            <button class="btn btn-cyan" onclick="runPITRRecovery()">
-              Run Smart Recovery
-            </button>
+            <button class="btn btn-cyan" onclick="runPITRRecovery()">Run Smart Recovery</button>
           </div>
 
-          <!-- COMPROMISE TIMESTAMP AUTO-DETECT & TARGET CALCULATION CONTROL -->
-          <div style="background:#0d1117;border:1px solid var(--border-accent);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
-              <span style="font-family:var(--font-mono);font-weight:700;color:var(--cyan);font-size:0.85rem">
-                AUTOMATED SAFE POINT CALCULATOR (smart_recover.py --compromise-time)
-              </span>
-              <button class="btn" style="background:#161b22;border-color:var(--border-color);color:var(--cyan);font-size:0.75rem" onclick="autoDetectCompromiseTime()">
-                Auto-Detect Last Anomaly Timestamp
-              </button>
+          <div class="sub-card" style="margin-bottom:1.5rem;border-color:var(--border-accent)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.85rem">
+              <div class="sub-card-title" style="margin-bottom:0">AUTOMATED SAFE POINT CALCULATOR (smart_recover.py --compromise-time)</div>
+              <button class="btn" style="font-size:0.73rem;white-space:nowrap" onclick="autoDetectCompromiseTime()">Auto-Detect Last Anomaly</button>
             </div>
-
-            <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;align-items:center">
+            <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;align-items:flex-end">
               <div>
-                <label style="font-size:0.75rem;color:var(--text-muted);display:block;margin-bottom:0.3rem">Incident Compromise Timestamp</label>
+                <label>Incident Compromise Timestamp</label>
                 <input type="text" class="input-field" id="pitr-compromise-input" placeholder="e.g. 2026-08-05 02:29:45.000 UTC" oninput="calculateSafePITRPoint()">
               </div>
               <div>
-                <label style="font-size:0.75rem;color:transparent;display:block;margin-bottom:0.3rem">Action</label>
-                <button class="btn btn-cyan" style="width:100%" onclick="calculateSafePITRPoint()">
-                  Calculate Safe PITR Target
-                </button>
+                <button class="btn btn-cyan" style="width:100%;padding:0.55rem" onclick="calculateSafePITRPoint()">Calculate Safe PITR Target</button>
               </div>
             </div>
           </div>
 
           <div style="margin-bottom:1.5rem">
-            <h3 style="font-size:0.85rem;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:0.5rem">
-              INTERACTIVE BACKUP TIMELINE
-            </h3>
-
+            <div style="font-size:0.7rem;color:var(--text-muted);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem">Interactive Backup Timeline</div>
             <div class="timeline-bar">
-              <div class="timeline-node active" onclick="selectTimelineNode(this, 'all')" id="tnode-base">
+              <div class="timeline-node active" onclick="selectTimelineNode(this,'all')" id="tnode-base">
                 <div>Base Backup</div>
-                <div style="color:var(--text-muted);font-size:0.68rem">0-RPO Anchor</div>
+                <div style="color:var(--text-muted);font-size:0.65rem">0-RPO Anchor</div>
               </div>
-              <div class="timeline-node" onclick="selectTimelineNode(this, 'wal2')" id="tnode-wal2">
+              <div class="timeline-node" onclick="selectTimelineNode(this,'wal2')" id="tnode-wal2">
                 <div>WAL Log #0002</div>
-                <div style="color:var(--text-muted);font-size:0.68rem">16 MB Segment</div>
+                <div style="color:var(--text-muted);font-size:0.65rem">16 MB Segment</div>
               </div>
-              <div class="timeline-node" onclick="selectTimelineNode(this, 'wal3')" id="tnode-wal3">
+              <div class="timeline-node" onclick="selectTimelineNode(this,'wal3')" id="tnode-wal3">
                 <div>WAL Log #0003</div>
-                <div style="color:var(--text-muted);font-size:0.68rem">16 MB Segment</div>
+                <div style="color:var(--text-muted);font-size:0.65rem">16 MB Segment</div>
               </div>
-              <div class="timeline-node" onclick="selectTimelineNode(this, 'wal4')" id="tnode-wal4">
+              <div class="timeline-node" onclick="selectTimelineNode(this,'wal4')" id="tnode-wal4">
                 <div>WAL Log #0004</div>
-                <div style="color:var(--text-muted);font-size:0.68rem">16 MB Segment</div>
+                <div style="color:var(--text-muted);font-size:0.65rem">16 MB Segment</div>
               </div>
             </div>
-            <div id="timeline-detail-box" style="margin-top:0.6rem;background:#161b22;padding:0.6rem 1rem;border-radius:6px;border:1px solid var(--border-color);font-family:var(--font-mono);font-size:0.78rem;color:var(--cyan)">
+            <div id="timeline-detail-box" style="margin-top:0.6rem;background:#161b22;padding:0.65rem 1rem;border-radius:6px;border:1px solid var(--border-color);font-family:var(--font-mono);font-size:0.76rem;color:var(--cyan)">
               Active Restore Target: Base Backup (Full Snapshot Anchor + Continuous WAL Archiving)
             </div>
           </div>
 
-          <h3 style="font-size:0.85rem;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:0.5rem">
-            CRYPTOGRAPHIC BACKUP LEDGER (backup_ledger)
-          </h3>
+          <div style="font-size:0.7rem;color:var(--text-muted);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem">Cryptographic Backup Ledger (backup_ledger)</div>
           <table class="soc-table">
             <thead>
-              <tr>
-                <th>ID</th>
-                <th>Filename</th>
-                <th>Type</th>
-                <th>SHA-256 Hash</th>
-                <th>Created At</th>
-                <th>Verified</th>
-              </tr>
+              <tr><th>ID</th><th>Filename</th><th>Type</th><th>SHA-256 Hash</th><th>Created At</th><th>Verified</th></tr>
             </thead>
             <tbody id="ledger-table-body">
-              <tr><td colspan="6" style="text-align:center;color:var(--text-muted)">Loading backup_ledger table…</td></tr>
+              <tr><td colspan="6" style="text-align:center;color:var(--text-muted)">Loading backup_ledger table&hellip;</td></tr>
             </tbody>
           </table>
         </section>
 
-        <!-- ============================================================
-             PANEL 5: ASSISTANT (RAG CHAT)
-        ============================================================ -->
+        <!-- PANEL 5: ASSISTANT -->
         <section class="panel-view" id="view-assistant">
           <div class="panel-head">
             <div>
@@ -1250,23 +1273,20 @@
               <div class="panel-subtitle">Ollama Qwen2.5 Vector RAG Knowledge Base</div>
             </div>
           </div>
-
           <div class="chip-container">
             <div class="chip" onclick="askChip('What is our RPO and RTO?')">What is our RPO and RTO?</div>
             <div class="chip" onclick="askChip('How does WAL Archiving work?')">How does WAL Archiving work?</div>
             <div class="chip" onclick="askChip('Explain the Isolation Forest anomaly score')">Explain the anomaly score</div>
             <div class="chip" onclick="askChip('How does smart_recover.py verify SHA-256?')">How is SHA-256 verified?</div>
           </div>
-
           <div class="chat-box" id="chat-box">
             <div class="chat-bubble ai">
               Hello! I am the RescueCloud AI Assistant. Ask me anything about our zero-RPO WAL recovery, Isolation Forest threat model, or disaster recovery architecture.
             </div>
           </div>
-
           <form onsubmit="sendChatMessage(event)" style="display:flex;gap:0.75rem">
-            <input type="text" class="input-field" id="chat-input" placeholder="Ask a question about RescueCloud architecture…">
-            <button type="submit" class="btn btn-cyan">Send</button>
+            <input type="text" class="input-field" id="chat-input" placeholder="Ask a question about RescueCloud architecture&hellip;">
+            <button type="submit" class="btn btn-cyan" style="white-space:nowrap;padding:0 1.25rem">Send</button>
           </form>
         </section>
 
@@ -1274,7 +1294,7 @@
     </main>
 
     <footer>
-      RescueCloud Enterprise SOC · PostgreSQL WAL PITR · Isolation Forest Threat Telemetry Engine
+      <span>RescueCloud</span> Enterprise SOC &nbsp;&middot;&nbsp; PostgreSQL WAL PITR &nbsp;&middot;&nbsp; Isolation Forest Threat Telemetry Engine
     </footer>
   </div>
 
@@ -1282,7 +1302,6 @@
     const API_URL = window.location.port === "3000" ? "/api" : "http://localhost:8001";
     let allPatients = [];
 
-    // AUTHENTICATION LOGIC
     function checkAuth() {
       const isAuth = sessionStorage.getItem("rescuecloud_auth");
       if (isAuth === "true") {
@@ -1299,7 +1318,6 @@
       const id = document.getElementById("login-id").value.trim();
       const pass = document.getElementById("login-pass").value.trim();
       const errMsg = document.getElementById("login-error-msg");
-
       if ((id === "admin@rescuecloud.io" || id === "rescueadmin") && pass === "RescueCloud2026!") {
         sessionStorage.setItem("rescuecloud_auth", "true");
         errMsg.style.display = "none";
@@ -1314,50 +1332,61 @@
       checkAuth();
     }
 
-    // CLOCK
     function updateClock() {
-      const now = new Date();
-      document.getElementById("live-clock").textContent = now.toLocaleTimeString() + " IST";
+      document.getElementById("live-clock").textContent = new Date().toLocaleTimeString() + " IST";
     }
     setInterval(updateClock, 1000);
     updateClock();
 
-    // TAB SWITCHING
     function switchTab(tabId) {
-      document.querySelectorAll(".nav-tile").forEach(t => t.classList.remove("active"));
-      document.querySelectorAll(".panel-view").forEach(p => p.classList.remove("active"));
+      // 1. Update round hub station buttons
+      document.querySelectorAll(".hub-station").forEach(t => t.classList.remove("active"));
+      const station = document.getElementById("tile-" + tabId);
+      if (station) station.classList.add("active");
 
-      const targetTile = document.getElementById(`tile-${tabId}`);
-      const targetView = document.getElementById(`view-${tabId}`);
-      if (targetTile) targetTile.classList.add("active");
-      if (targetView) targetView.classList.add("active");
+      // 2. Update SVG laser spoke lines
+      document.querySelectorAll(".spoke-line").forEach(l => l.classList.remove("active-spoke"));
+      const activeSpoke = document.getElementById("spoke-" + tabId);
+      if (activeSpoke) activeSpoke.classList.add("active-spoke");
+
+      // 3. Update active subsystem banner text
+      const label = document.getElementById("hub-active-label");
+      if (label) {
+        const titles = {
+          patients: "EHR PATIENTS — CLINICAL DATASET",
+          anomaly: "ML ENGINE — ISOLATION FOREST TELEMETRY",
+          containment: "AIR-GAP CONTAINMENT — 38ms CIRCUIT BREAKER",
+          backups: "WAL PITR ARCHIVE — CRYPTOGRAPHIC LEDGER",
+          assistant: "AI COPILOT — VECTOR RAG KNOWLEDGE BASE"
+        };
+        label.textContent = titles[tabId] || tabId.toUpperCase();
+      }
+
+      // 4. Switch panel view
+      document.querySelectorAll(".panel-view").forEach(p => p.classList.remove("active"));
+      const view = document.getElementById("view-" + tabId);
+      if (view) view.classList.add("active");
     }
 
-    // HEALTH STRIP
     async function pollHealth() {
       try {
-        const resp = await fetch(`${API_URL}/health`);
+        const resp = await fetch(API_URL + "/health");
         const ok = resp.ok;
-        document.getElementById("dot-db").className = `status-dot ${ok ? "ok" : "bad"}`;
-        document.getElementById("dot-ml").className = `status-dot ${ok ? "ok" : "bad"}`;
-        document.getElementById("dot-wal").className = `status-dot ${ok ? "ok" : "bad"}`;
-      } catch (_) {
-        document.getElementById("dot-db").className = "status-dot bad";
-      }
+        ["dot-db", "dot-ml", "dot-wal"].forEach(id => {
+          document.getElementById(id).className = "status-dot " + (ok ? "ok" : "bad");
+        });
+      } catch (_) { document.getElementById("dot-db").className = "status-dot bad"; }
       try {
-        const rResp = await fetch(`${API_URL}/rag/status`);
-        document.getElementById("dot-rag").className = `status-dot ${rResp.ok ? "ok" : "warn"}`;
-      } catch (_) {
-        document.getElementById("dot-rag").className = "status-dot warn";
-      }
+        const r = await fetch(API_URL + "/rag/status");
+        document.getElementById("dot-rag").className = "status-dot " + (r.ok ? "ok" : "warn");
+      } catch (_) { document.getElementById("dot-rag").className = "status-dot warn"; }
     }
     setInterval(pollHealth, 3000);
     pollHealth();
 
-    // PATIENTS DATA
     async function loadPatients() {
       try {
-        const resp = await fetch(`${API_URL}/patients`);
+        const resp = await fetch(API_URL + "/patients");
         if (!resp.ok) return;
         allPatients = await resp.json();
         renderPatients(allPatients);
@@ -1368,32 +1397,27 @@
     function renderPatients(list) {
       const tbody = document.getElementById("patient-table-body");
       if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">No matching records</td></tr>`;
+        tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;color:var(--text-muted)'>No matching records</td></tr>";
         return;
       }
-      tbody.innerHTML = list.slice(0, 15).map(p => `
-        <tr>
-          <td style="font-family:var(--font-mono);color:var(--cyan)">${p.patient_id.substring(0,8)}...</td>
-          <td><strong>${p.name}</strong></td>
-          <td>${p.age}</td>
-          <td>${p.gender}</td>
-          <td>${p.diagnosis}</td>
-        </tr>
-      `).join("");
+      tbody.innerHTML = list.slice(0, 15).map(p =>
+        "<tr>" +
+        "<td style='font-family:var(--font-mono);color:var(--cyan)'>" + p.patient_id.substring(0,8) + "...</td>" +
+        "<td><strong>" + p.name + "</strong></td>" +
+        "<td>" + p.age + "</td><td>" + p.gender + "</td><td>" + p.diagnosis + "</td></tr>"
+      ).join("");
     }
 
     document.getElementById("patient-search").addEventListener("input", e => {
       const q = e.target.value.toLowerCase();
-      const filtered = allPatients.filter(p =>
+      renderPatients(allPatients.filter(p =>
         p.name.toLowerCase().includes(q) ||
         p.diagnosis.toLowerCase().includes(q) ||
         p.patient_id.toLowerCase().includes(q)
-      );
-      renderPatients(filtered);
+      ));
     });
     loadPatients();
 
-    // PRESET LOADERS
     function loadNormalPreset() {
       document.getElementById("f-role").value = "doctor";
       document.getElementById("f-action").value = "view_record";
@@ -1412,13 +1436,10 @@
       document.getElementById("f-offhours").value = "1";
     }
 
-    // PREDICT HANDLER WITH RADAR SWEEP ANIMATION
     async function runManualPredict(e) {
       if (e) e.preventDefault();
-
       const rSweep = document.getElementById("radar-sweep");
       if (rSweep) rSweep.classList.add("spinning");
-
       const payload = {
         role: document.getElementById("f-role").value,
         action: document.getElementById("f-action").value,
@@ -1427,143 +1448,96 @@
         export_size_mb: parseFloat(document.getElementById("f-export").value),
         off_hours_access: parseInt(document.getElementById("f-offhours").value),
       };
-
       try {
-        const resp = await fetch(`${API_URL}/anomaly/predict`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+        const resp = await fetch(API_URL + "/anomaly/predict", {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
         });
         const res = await resp.json();
         const score = res.decision_score;
         const gVal = document.getElementById("gauge-val");
         const gFill = document.getElementById("gauge-fill");
         const vBox = document.getElementById("verdict-box");
-
         gVal.textContent = (score >= 0 ? "+" : "") + score.toFixed(2);
         if (res.is_anomaly) {
-          gVal.className = "gauge-score red";
-          gFill.style.width = "90%"; gFill.style.background = "var(--red)";
-          vBox.textContent = "ANOMALY DETECTED: High Threat Exfiltration Pattern";
-          vBox.style.color = "var(--red)";
+          gVal.className = "gauge-score red"; gFill.style.width = "90%"; gFill.style.background = "var(--red)";
+          vBox.textContent = "ANOMALY DETECTED: High Threat Exfiltration Pattern"; vBox.style.color = "var(--red)";
           if (rSweep) rSweep.className = "radar-sweep red spinning";
         } else {
-          gVal.className = "gauge-score green";
-          gFill.style.width = "20%"; gFill.style.background = "var(--green)";
-          vBox.textContent = "Baseline Telemetry Normal";
-          vBox.style.color = "var(--green)";
+          gVal.className = "gauge-score green"; gFill.style.width = "20%"; gFill.style.background = "var(--green)";
+          vBox.textContent = "Baseline Telemetry Normal"; vBox.style.color = "var(--green)";
           if (rSweep) rSweep.className = "radar-sweep spinning";
         }
       } catch (_) {}
-
-      setTimeout(() => {
-        if (rSweep) rSweep.classList.remove("spinning");
-      }, 2500);
+      setTimeout(() => { if (rSweep) rSweep.classList.remove("spinning"); }, 2500);
     }
 
     async function triggerEmergencySimulation() {
-      switchTab("anomaly");
-      loadSuspiciousPreset();
-      await runManualPredict(null);
+      switchTab("anomaly"); loadSuspiciousPreset(); await runManualPredict(null);
     }
 
-    // LIVE FEED POLLING
     let liveSeen = new Set();
     let lastDetectedAnomalyTime = null;
 
     async function pollLiveFeed() {
       try {
-        const resp = await fetch(`${API_URL}/anomaly/live`);
+        const resp = await fetch(API_URL + "/anomaly/live");
         if (!resp.ok) return;
         const data = await resp.json();
         const events = data.events || [];
         if (events.length === 0) return;
-
-        if (events.length > 0) {
-          const newest = events[0];
-          const gVal = document.getElementById("gauge-val");
-          const gFill = document.getElementById("gauge-fill");
-          const vBox = document.getElementById("verdict-box");
-
-          if (gVal && gFill && vBox) {
-            gVal.textContent = (newest.score >= 0 ? "+" : "") + Number(newest.score).toFixed(2);
-            if (newest.is_anomaly) {
-              gVal.className = "gauge-score red";
-              gFill.style.width = "90%"; gFill.style.background = "var(--red)";
-              vBox.textContent = "ANOMALY DETECTED: High Threat Exfiltration Pattern";
-              vBox.style.color = "var(--red)";
-            } else {
-              gVal.className = "gauge-score green";
-              gFill.style.width = "20%"; gFill.style.background = "var(--green)";
-              vBox.textContent = "Baseline Telemetry Normal";
-              vBox.style.color = "var(--green)";
-            }
+        const newest = events[0];
+        const gVal = document.getElementById("gauge-val");
+        const gFill = document.getElementById("gauge-fill");
+        const vBox = document.getElementById("verdict-box");
+        if (gVal && gFill && vBox) {
+          gVal.textContent = (newest.score >= 0 ? "+" : "") + Number(newest.score).toFixed(2);
+          if (newest.is_anomaly) {
+            gVal.className = "gauge-score red"; gFill.style.width = "90%"; gFill.style.background = "var(--red)";
+            vBox.textContent = "ANOMALY DETECTED: High Threat Exfiltration Pattern"; vBox.style.color = "var(--red)";
+          } else {
+            gVal.className = "gauge-score green"; gFill.style.width = "20%"; gFill.style.background = "var(--green)";
+            vBox.textContent = "Baseline Telemetry Normal"; vBox.style.color = "var(--green)";
           }
         }
-
         const tbody = document.getElementById("live-feed-body");
         if (liveSeen.size === 0) tbody.innerHTML = "";
-
         events.forEach(ev => {
           if (liveSeen.has(ev.ts)) return;
           liveSeen.add(ev.ts);
-
           if (ev.is_anomaly) {
-            lastDetectedAnomalyTime = new Date(ev.ts).toISOString().replace('T', ' ').substring(0, 19) + " UTC";
+            lastDetectedAnomalyTime = new Date(ev.ts).toISOString().replace('T',' ').substring(0,19) + " UTC";
             const compInp = document.getElementById("pitr-compromise-input");
-            if (compInp && !compInp.value) {
-              compInp.value = lastDetectedAnomalyTime;
-              calculateSafePITRPoint();
-            }
+            if (compInp && !compInp.value) { compInp.value = lastDetectedAnomalyTime; calculateSafePITRPoint(); }
           }
-
           const time = new Date(ev.ts).toLocaleTimeString();
-          const isAnomaly = ev.is_anomaly;
-          const verdict = isAnomaly
-            ? `<span class="status-badge bad">ANOMALY</span>`
-            : `<span class="status-badge ok">NORMAL</span>`;
-
+          const verdict = ev.is_anomaly ? "<span class='status-badge bad'>ANOMALY</span>" : "<span class='status-badge ok'>NORMAL</span>";
           const tr = document.createElement("tr");
-          if (isAnomaly) tr.style.background = "rgba(255, 61, 0, 0.08)";
-          tr.innerHTML = `
-            <td style="font-family:var(--font-mono);color:var(--text-muted)">${time}</td>
-            <td>${verdict}</td>
-            <td>${ev.role ?? "—"}</td>
-            <td>${ev.action ?? "—"}</td>
-            <td>${ev.requests_per_minute ?? "—"}</td>
-            <td>${ev.records_accessed ?? "—"}</td>
-            <td style="font-family:var(--font-mono);font-weight:600;color:${isAnomaly ? "var(--red)" : "var(--cyan)"}">${ev.score >= 0 ? "+" : ""}${ev.score}</td>
-          `;
+          if (ev.is_anomaly) tr.style.background = "rgba(255,61,0,0.06)";
+          tr.innerHTML =
+            "<td style='font-family:var(--font-mono);color:var(--text-muted)'>" + time + "</td>" +
+            "<td>" + verdict + "</td><td>" + (ev.role||"—") + "</td><td>" + (ev.action||"—") + "</td>" +
+            "<td>" + (ev.requests_per_minute||"—") + "</td><td>" + (ev.records_accessed||"—") + "</td>" +
+            "<td style='font-family:var(--font-mono);font-weight:600;color:" + (ev.is_anomaly?"var(--red)":"var(--cyan)") + "'>" + (ev.score>=0?"+":"") + ev.score + "</td>";
           tbody.insertBefore(tr, tbody.firstChild);
           while (tbody.rows.length > 50) tbody.deleteRow(tbody.rows.length - 1);
         });
-
-        document.getElementById("live-count-str").textContent = `${liveSeen.size} events recorded`;
+        document.getElementById("live-count-str").textContent = liveSeen.size + " events recorded";
       } catch (_) {}
     }
     setInterval(pollLiveFeed, 1000);
     pollLiveFeed();
 
-    // CIRCUIT BREAKER POLLING
     async function pollCircuitBreaker() {
       try {
-        const resp = await fetch(`${API_URL}/anomaly/circuit-breaker`);
+        const resp = await fetch(API_URL + "/anomaly/circuit-breaker");
         if (!resp.ok) return;
         const data = await resp.json();
         const banner = document.getElementById("circuit-banner");
         const sub = document.getElementById("banner-sub");
-
         if (data.active) {
           banner.style.display = "flex";
-          const ipStr = data.blocked_ips.join(", ") || '192.168.65.1';
-          sub.innerHTML = `
-            <div style="margin-top:0.3rem;font-size:0.85rem;color:#f0f6fc;line-height:1.5;font-family:var(--font-sans)">
-              A suspicious attempt to steal patient health records was automatically detected and blocked. The attacker's IP (<strong>${ipStr}</strong>) has been quarantined, and the database was instantly locked in Read-Only Mode to protect all patient data.
-            </div>
-            <div style="margin-top:0.4rem;font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono)">
-              Reaction Speed: ${data.reaction_time_ms || 38}ms | Quarantined IP: ${ipStr} | WAL Checkpoint: Frozen via pg_switch_wal()
-            </div>
-          `;
+          const ipStr = data.blocked_ips.join(", ") || "192.168.65.1";
+          sub.innerHTML = "<div style='margin-top:0.3rem;font-size:0.82rem;color:#f0f6fc;line-height:1.5'>A suspicious attempt to steal patient health records was automatically detected. The attacker's IP (<strong>" + ipStr + "</strong>) has been quarantined and the database locked in Read-Only Mode.</div><div style='margin-top:0.35rem;font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono)'>Reaction: " + (data.reaction_time_ms||38) + "ms &middot; IP: " + ipStr + " &middot; WAL frozen via pg_switch_wal()</div>";
           document.getElementById("cb-status-str").textContent = "CONTAINMENT ACTIVE";
           document.getElementById("cb-status-str").style.color = "var(--red)";
           document.getElementById("cb-ips-str").textContent = ipStr;
@@ -1576,189 +1550,121 @@
       } catch (_) {}
     }
     async function resetCircuitBreaker() {
-      try {
-        await fetch(`${API_URL}/anomaly/circuit-breaker/reset`, { method: "POST" });
-        pollCircuitBreaker();
-        pollBlastRadius();
-      } catch (_) {}
+      try { await fetch(API_URL + "/anomaly/circuit-breaker/reset", { method: "POST" }); pollCircuitBreaker(); pollBlastRadius(); } catch (_) {}
     }
     setInterval(pollCircuitBreaker, 1000);
     pollCircuitBreaker();
 
-    // BLAST RADIUS POLLING
     async function pollBlastRadius() {
       try {
-        const resp = await fetch(`${API_URL}/anomaly/blast-radius`);
+        const resp = await fetch(API_URL + "/anomaly/blast-radius");
         if (!resp.ok) return;
         const data = await resp.json();
-        const recEl = document.getElementById("br-records");
-        const mbEl = document.getElementById("br-mb");
-        const durEl = document.getElementById("br-duration");
-        const tblEl = document.getElementById("br-tables");
-        const pitrEl = document.getElementById("br-pitr-target");
-        const shaEl = document.getElementById("br-sha");
+        const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        set("br-records", (data.tainted_records_count || 4219).toLocaleString());
+        set("br-mb", (data.total_exfiltrated_mb || 757.9) + " MB");
+        set("br-duration", (data.taint_duration_sec || 0.38) + " s");
+        set("br-tables", (data.compromised_tables || []).map(t => "public." + t).join(", "));
+        set("br-pitr-target", (data.recommended_pitr_target || "Target Time") + " (0-RPO Pre-Incident State)");
+        set("br-sha", (data.pre_breach_sha256 || "e3b0c442").substring(0, 16) + "...");
         const badge = document.getElementById("br-status-badge");
-
-        if (recEl) recEl.textContent = (data.tainted_records_count || 4219).toLocaleString();
-        if (mbEl) mbEl.textContent = `${data.total_exfiltrated_mb || 757.9} MB`;
-        if (durEl) durEl.textContent = `${data.taint_duration_sec || 0.38} s`;
-        if (tblEl) tblEl.textContent = (data.compromised_tables || []).map(t => `public.${t}`).join(", ");
-        if (pitrEl) pitrEl.textContent = `${data.recommended_pitr_target || 'Target Time'} (0-RPO Pre-Incident State)`;
-        if (shaEl) shaEl.textContent = (data.pre_breach_sha256 || 'e3b0c442').substring(0, 16) + "...";
-
-        if (badge) {
-          if (data.containment_active) {
-            badge.textContent = "INCIDENT TAINT CONTAINED";
-            badge.className = "status-badge bad";
-          } else {
-            badge.textContent = "STANDBY MONITORING";
-            badge.className = "status-badge ok";
-          }
-        }
+        if (badge) { badge.textContent = data.containment_active ? "INCIDENT TAINT CONTAINED" : "STANDBY MONITORING"; badge.className = "status-badge " + (data.containment_active ? "bad" : "ok"); }
       } catch (_) {}
     }
     setInterval(pollBlastRadius, 2000);
     pollBlastRadius();
 
-    // AUTOMATED COMPROMISE TIME & DYNAMIC SAFE POINT CALCULATION
     function autoDetectCompromiseTime() {
       const input = document.getElementById("pitr-compromise-input");
-      if (lastDetectedAnomalyTime) {
-        input.value = lastDetectedAnomalyTime;
-      } else {
-        const now = new Date();
-        input.value = now.toISOString().replace('T', ' ').substring(0, 19) + " UTC";
-      }
+      input.value = lastDetectedAnomalyTime || new Date().toISOString().replace('T',' ').substring(0,19) + " UTC";
       calculateSafePITRPoint();
     }
 
     function calculateSafePITRPoint() {
       const input = document.getElementById("pitr-compromise-input");
       const timeVal = (input && input.value.trim()) ? input.value.trim() : "2026-08-05 02:29:45 UTC";
-
-      // Dynamic segment selection based on target time input
-      let targetNodeId = "tnode-wal2";
-      let filter = "wal2";
-      let lsn = "0/02000000";
-      let segName = "WAL Log #0002";
-
+      let targetNodeId = "tnode-wal2", filter = "wal2", lsn = "0/02000000", segName = "WAL Log #0002";
       if (timeVal.includes("02:3") || timeVal.includes("02:4") || timeVal.includes("03:")) {
-        targetNodeId = "tnode-wal3";
-        filter = "wal3";
-        lsn = "0/03000000";
-        segName = "WAL Log #0003";
+        targetNodeId = "tnode-wal3"; filter = "wal3"; lsn = "0/03000000"; segName = "WAL Log #0003";
       } else if (timeVal.includes("02:5") || timeVal.includes("04:") || timeVal.includes("05:")) {
-        targetNodeId = "tnode-wal4";
-        filter = "wal4";
-        lsn = "0/04000000";
-        segName = "WAL Log #0004";
+        targetNodeId = "tnode-wal4"; filter = "wal4"; lsn = "0/04000000"; segName = "WAL Log #0004";
       }
-
       const nodeEl = document.getElementById(targetNodeId);
       if (nodeEl) selectTimelineNode(nodeEl, filter);
-
       const detailBox = document.getElementById("timeline-detail-box");
       if (detailBox) {
-        detailBox.innerHTML = `AUTOMATED SAFE POINT CALCULATED (smart_recover.py): Target Timestamp: <strong>${timeVal}</strong> — Selected Segment: <strong>${segName} (${lsn})</strong> — Pre-attack clean state verified via SHA-256 checksum.`;
+        detailBox.innerHTML = "AUTOMATED SAFE POINT: <strong>" + timeVal + "</strong> &rarr; <strong>" + segName + " (" + lsn + ")</strong> &mdash; Pre-attack state verified via SHA-256.";
         detailBox.style.color = "var(--green)";
       }
     }
 
-
-    // BACKUP LEDGER FETCH
     async function loadBackups() {
       try {
-        const resp = await fetch(`${API_URL}/backups`);
+        const resp = await fetch(API_URL + "/backups");
         if (!resp.ok) return;
         const data = await resp.json();
         const tbody = document.getElementById("ledger-table-body");
         if (!tbody || data.length === 0) return;
-
-        tbody.innerHTML = data.map(b => `
-          <tr>
-            <td style="font-family:var(--font-mono);color:var(--text-muted)">#${b.id}</td>
-            <td style="font-family:var(--font-mono);color:var(--cyan)"><strong>${b.filename}</strong></td>
-            <td><span class="status-badge ok">${b.backup_type}</span></td>
-            <td style="font-family:var(--font-mono);font-size:0.75rem">${(b.sha256 || 'e3b0c442').substring(0, 16)}...</td>
-            <td style="font-family:var(--font-mono);color:var(--text-muted)">${b.created_at}</td>
-            <td><span class="status-badge ok">VERIFIED</span></td>
-          </tr>
-        `).join("");
+        tbody.innerHTML = data.map(b =>
+          "<tr><td style='font-family:var(--font-mono);color:var(--text-muted)'>#" + b.id + "</td>" +
+          "<td style='font-family:var(--font-mono);color:var(--cyan)'><strong>" + b.filename + "</strong></td>" +
+          "<td><span class='status-badge ok'>" + b.backup_type + "</span></td>" +
+          "<td style='font-family:var(--font-mono);font-size:0.73rem'>" + (b.sha256||"e3b0c442").substring(0,16) + "...</td>" +
+          "<td style='font-family:var(--font-mono);color:var(--text-muted)'>" + b.created_at + "</td>" +
+          "<td><span class='status-badge ok'>VERIFIED</span></td></tr>"
+        ).join("");
       } catch (_) {}
     }
     loadBackups();
     setInterval(loadBackups, 5000);
 
-    // INTERACTIVE TIMELINE SELECTION HANDLER
     let currentTimelineFilter = "all";
-
     function selectTimelineNode(el, filter) {
       document.querySelectorAll(".timeline-node").forEach(n => n.classList.remove("active"));
       el.classList.add("active");
       currentTimelineFilter = filter;
-
       const detailBox = document.getElementById("timeline-detail-box");
-      if (filter === "all") {
-        detailBox.innerHTML = `Active Restore Target: <strong>Base Backup Anchor</strong> — Full Base Image + Continuous WAL Archiving`;
-        detailBox.style.color = "var(--cyan)";
-      } else if (filter === "wal2") {
-        detailBox.innerHTML = `Active Restore Target: <strong>WAL Log #000000010000000000000002</strong> — Target LSN: 0/02000000 — 16MB Log Segment`;
-        detailBox.style.color = "var(--green)";
-      } else if (filter === "wal3") {
-        detailBox.innerHTML = `Active Restore Target: <strong>WAL Log #000000010000000000000003</strong> — Target LSN: 0/03000000 — 16MB Log Segment`;
-        detailBox.style.color = "var(--amber)";
-      } else if (filter === "wal4") {
-        detailBox.innerHTML = `Active Restore Target: <strong>WAL Log #000000010000000000000004 (Frozen Checkpoint)</strong> — Pre-Breach Recovery Target`;
-        detailBox.style.color = "var(--red)";
-      }
+      const labels = {
+        all:  ["Base Backup Anchor", "Full Base Image + Continuous WAL Archiving", "var(--cyan)"],
+        wal2: ["WAL Log #000000010000000000000002", "Target LSN: 0/02000000 &mdash; 16MB Log Segment", "var(--green)"],
+        wal3: ["WAL Log #000000010000000000000003", "Target LSN: 0/03000000 &mdash; 16MB Log Segment", "var(--amber)"],
+        wal4: ["WAL Log #000000010000000000000004 (Frozen Checkpoint)", "Pre-Breach Recovery Target", "var(--red)"],
+      };
+      const entry = labels[filter] || labels.all;
+      detailBox.innerHTML = "Active Restore Target: <strong>" + entry[0] + "</strong> &mdash; " + entry[1];
+      detailBox.style.color = entry[2];
     }
 
     async function runPITRRecovery() {
       const compInput = document.getElementById("pitr-compromise-input");
       const compTime = (compInput && compInput.value.trim()) ? compInput.value.trim() : (lastDetectedAnomalyTime || new Date().toISOString());
-
       const detailBox = document.getElementById("timeline-detail-box");
       if (detailBox) {
-        detailBox.innerHTML = `EXECUTING SMART RECOVERY (smart_recover.py --compromise-time "${compTime}")... Target LSN 0/02000000 set. 100% EHR Data Restored (0.0s RPO).`;
+        detailBox.innerHTML = "EXECUTING SMART RECOVERY (smart_recover.py --compromise-time \"" + compTime + "\")&hellip; 100% EHR Data Restored (0.0s RPO).";
         detailBox.style.color = "var(--green)";
       }
       try {
-        await fetch(`${API_URL}/incidents/recover`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ compromise_time: compTime })
-        });
+        await fetch(API_URL + "/incidents/recover", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ compromise_time: compTime }) });
       } catch (_) {}
     }
 
-    // CHAT ASSISTANT
-    function askChip(question) {
-      document.getElementById("chat-input").value = question;
-      sendChatMessage(null);
-    }
+    function askChip(question) { document.getElementById("chat-input").value = question; sendChatMessage(null); }
 
     async function sendChatMessage(e) {
       if (e) e.preventDefault();
       const input = document.getElementById("chat-input");
       const text = input.value.trim();
       if (!text) return;
-
       const chatBox = document.getElementById("chat-box");
-      chatBox.innerHTML += `<div class="chat-bubble user">${text}</div>`;
+      chatBox.innerHTML += "<div class='chat-bubble user'>" + text + "</div>";
       input.value = "";
       chatBox.scrollTop = chatBox.scrollHeight;
-
       const loadingDiv = document.createElement("div");
       loadingDiv.className = "chat-bubble ai";
-      loadingDiv.textContent = "Analyzing RescueCloud knowledge base…";
+      loadingDiv.textContent = "Analyzing RescueCloud knowledge base\u2026";
       chatBox.appendChild(loadingDiv);
-
       try {
-        const resp = await fetch(`${API_URL}/rag/ask`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question: text }),
-        });
+        const resp = await fetch(API_URL + "/rag/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: text }) });
         const data = await resp.json();
         loadingDiv.textContent = data.answer || "No response received.";
       } catch (_) {
@@ -1767,9 +1673,9 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // INITIALIZE CHART & AUTH CHECK
     window.addEventListener("DOMContentLoaded", () => {
       checkAuth();
+      switchTab('patients');
       const ctx = document.getElementById("anomalyRecoveryChart");
       if (ctx) {
         new Chart(ctx, {
@@ -1777,60 +1683,21 @@
           data: {
             labels: ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "Current"],
             datasets: [
-              {
-                label: "Anomalies Intercepted (Illustrative Trend)",
-                data: [14, 22, 18, 31, 38, 45, 52],
-                borderColor: "#ff3d00",
-                backgroundColor: "rgba(255, 61, 0, 0.15)",
-                fill: true,
-                tension: 0.4,
-                borderWidth: 3,
-                pointRadius: 4,
-                pointBackgroundColor: "#ff3d00"
-              },
-              {
-                label: "Zero-RPO PITR Verified Checkpoints (Test Suite)",
-                data: [14, 22, 18, 31, 38, 45, 52],
-                borderColor: "#0ea5e9",
-                backgroundColor: "transparent",
-                fill: false,
-                borderDash: [6, 4],
-                tension: 0.4,
-                borderWidth: 3,
-                pointRadius: 6,
-                pointBackgroundColor: "#0ea5e9",
-                pointHoverRadius: 8
-              }
+              { label: "Anomalies Intercepted (Illustrative Trend)", data: [14,22,18,31,38,45,52], borderColor: "#ff3d00", backgroundColor: "rgba(255,61,0,0.15)", fill: true, tension: 0.4, borderWidth: 3, pointRadius: 4, pointBackgroundColor: "#ff3d00" },
+              { label: "Zero-RPO PITR Verified Checkpoints (Test Suite)", data: [14,22,18,31,38,45,52], borderColor: "#0ea5e9", backgroundColor: "transparent", fill: false, borderDash: [6,4], tension: 0.4, borderWidth: 3, pointRadius: 6, pointBackgroundColor: "#0ea5e9", pointHoverRadius: 8 }
             ]
           },
           options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                labels: {
-                  color: "#8b949e",
-                  font: { family: "JetBrains Mono", size: 11 }
-                }
-              }
-            },
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: "#8b949e", font: { family: "JetBrains Mono", size: 11 } } } },
             scales: {
-              x: {
-                grid: { color: "#21283b" },
-                ticks: { color: "#8b949e", font: { family: "JetBrains Mono", size: 10 } }
-              },
-              y: {
-                grid: { color: "#21283b" },
-                ticks: { color: "#8b949e", font: { family: "JetBrains Mono", size: 10 } }
-              }
+              x: { grid: { color: "#21283b" }, ticks: { color: "#8b949e", font: { family: "JetBrains Mono", size: 10 } } },
+              y: { grid: { color: "#21283b" }, ticks: { color: "#8b949e", font: { family: "JetBrains Mono", size: 10 } } }
             }
           }
         });
       }
     });
-
   </script>
 </body>
 </html>
-
-
