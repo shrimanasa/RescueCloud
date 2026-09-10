@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rescuecloud-config
+  namespace: rescuecloud
+data:
+  DB_HOST: "postgres-service"
+  DB_PORT: "5432"
+  DB_NAME: "rescuecloud_ehr"
+  DB_USER: "rescueadmin"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  EHR_SERVICE_URL: "http://ehr-service:8000"
+  SENTINEL_SERVICE_URL: "http://sentinel-service:8000"
+  AUDITOR_SERVICE_URL: "http://auditor-service:8000"
+  HEALER_SERVICE_URL: "http://healer-service:8000"
+  MINIO_ENDPOINT: "minio-service:9000"
+  BACKUP_INTERVAL_SECONDS: "300"
