@@ -1,0 +1,56 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rescuecloud-ingress
+  namespace: rescuecloud
+  labels:
+    app.kubernetes.io/name: rescuecloud
+    app.kubernetes.io/part-of: rescuecloud
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    # Strict TLS Enforcement
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    # HIPAA Security Headers (HSTS, No-Sniff, XSS Protection, Frame Options)
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload";
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+    # Buffer & Timeout Protections
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - ehr.rescuecloud.io
+        - api.rescuecloud.io
+      secretName: rescuecloud-tls-cert
+  rules:
+    - host: ehr.rescuecloud.io
+      http:
+        paths:
+          # Frontend UI Route
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rescuecloud-frontend
+                port:
+                  number: 80
+    - host: api.rescuecloud.io
+      http:
+        paths:
+          # API Gateway Routes
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rescuecloud-gateway
+                port:
+                  number: 8001

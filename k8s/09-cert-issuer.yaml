@@ -1,0 +1,42 @@
+# ===========================================================================
+# RescueCloud cert-manager ClusterIssuers
+# Automates TLS certificate issuance and renewal via Let's Encrypt ACME
+# or internal CA for air-gapped hospital environments.
+# ===========================================================================
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: security@rescuecloud.io
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: security@rescuecloud.io
+    privateKeySecretRef:
+      name: letsencrypt-staging-account-key
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+---
+# Internal Self-Signed Issuer for Air-Gapped / On-Premise Clinical Deployments
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: rescuecloud-selfsigned-issuer
+spec:
+  selfSigned: {}
