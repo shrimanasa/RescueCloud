@@ -1,0 +1,92 @@
+# Prometheus ServiceMonitor + Grafana.
+# Alert thresholds are conservative defaults for a single-hospital deployment.
+# ===========================================================================
+# RescueCloud Prometheus ServiceMonitor & Grafana Observability
+# Enables real-time telemetry: anomaly detection rate, circuit breaker state,
+# login throttle events, and API request latency (P95/P99).
+# ===========================================================================
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: rescuecloud-gateway-monitor
+  namespace: rescuecloud
+  labels:
+    release: prometheus-stack
+    app.kubernetes.io/name: rescuecloud-gateway
+spec:
+  selector:
+    matchLabels:
+      app: rescuecloud-gateway
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 10s
+      scrapeTimeout: 5s
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rescuecloud-grafana-dashboard
+  namespace: rescuecloud
+  labels:
+    grafana_dashboard: "1"
+data:
+  rescuecloud-soc-overview.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "title": "RescueCloud Security & Resilience SOC Dashboard",
+      "refresh": "5s",
+      "panels": [
+        {
+          "title": "Air-Gap Circuit Breaker Status",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+          "targets": [
+            { "expr": "rescuecloud_circuit_breaker_active", "legendFormat": "Circuit Breaker" }
+          ]
+        },
+        {
+          "title": "Quarantined Client IPs",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+          "targets": [
+            { "expr": "rescuecloud_quarantined_ips_count", "legendFormat": "Blocked IPs" }
+          ]
+        },
+        {
+          "title": "Anomalies Flagged (Total)",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+          "targets": [
+            { "expr": "rescuecloud_anomalies_detected_total", "legendFormat": "Anomalies" }
+          ]
+        },
+        {
+          "title": "WAL Checkpoint Switches",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+          "targets": [
+            { "expr": "rescuecloud_wal_switches_total", "legendFormat": "WAL Checkpoints Frozen" }
+          ]
+        },
+        {
+          "title": "HTTP Traffic & Auth Throttling Rate (req/sec)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+          "targets": [
+            { "expr": "sum(rate(rescuecloud_http_requests_total[1m])) by (status_code)", "legendFormat": "HTTP {{status_code}}" },
+            { "expr": "sum(rate(rescuecloud_login_attempts_total[1m])) by (status)", "legendFormat": "Login {{status}}" }
+          ]
+        },
+        {
+          "title": "API Request Latency (P95 & P99)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+          "targets": [
+            { "expr": "histogram_quantile(0.95, sum(rate(rescuecloud_http_request_duration_seconds_bucket[1m])) by (le))", "legendFormat": "P95 Latency (s)" },
+            { "expr": "histogram_quantile(0.99, sum(rate(rescuecloud_http_request_duration_seconds_bucket[1m])) by (le))", "legendFormat": "P99 Latency (s)" }
+          ]
+        }
+      ]
+    }
