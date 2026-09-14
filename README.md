@@ -272,9 +272,3 @@ For detailed architectural specifications, HL7/FHIR event ingestion schemas, out
 
 ---
 
-## Contributing
-
-1. Fork and branch — never commit directly to main.
-2. Run `pytest --tb=short -q` before opening a PR.
-3. Do not commit PHI — wal_archive/, backups/, data/synthea/ are gitignored.
-4. Update empirical metrics by re-deriving values from the CSV, not rounding.
